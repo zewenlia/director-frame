@@ -359,7 +359,7 @@ export default function App() {
             </div>
             <div className="flex items-center gap-1 h-7 px-2 rounded">
               <img
-                src="/profile.png"
+                src={`${import.meta.env.BASE_URL}profile.png`}
                 alt="Profile"
                 className="w-7 h-7 rounded-full border border-[#dee5eb] object-cover"
               />
