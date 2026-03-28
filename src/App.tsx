@@ -705,7 +705,7 @@ export default function App() {
                 <IconMicrophone size={14} stroke={1.5} className="text-[#a1b0b7]" />
               </button>
               <button
-                onClick={handleSendMessage}
+                onClick={() => handleSendMessage()}
                 disabled={!inputValue.trim() || isLoading}
                 className={`w-[22px] h-[22px] flex items-center justify-center rounded-full ${
                   !inputValue.trim() || isLoading

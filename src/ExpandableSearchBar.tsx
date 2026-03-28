@@ -8,13 +8,6 @@ interface SearchBarProps {
 }
 
 export function ExpandableSearchBar({
-  recentSearches = [
-    "How to configure agents",
-    "Dashboard setup guide",
-    "Performance metrics",
-    "User management",
-    "API documentation"
-  ],
   onSearch,
   onAskAI
 }: SearchBarProps) {
