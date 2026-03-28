@@ -1,4 +1,5 @@
 import React from 'react'
+import { Menu } from '@mantine/core'
 import { ExpandableSearchBar } from './ExpandableSearchBar'
 import {
   IconTrendingUp,
@@ -17,6 +18,7 @@ import {
   IconHistory,
   IconPlus,
   IconMicrophone,
+  IconCheck,
 } from '@tabler/icons-react'
 
 type Message = {
@@ -29,7 +31,11 @@ type Message = {
 export default function App() {
   const [isRightPanelCollapsed, setIsRightPanelCollapsed] = React.useState(false);
   const [isLeftNavCollapsed, setIsLeftNavCollapsed] = React.useState(false);
-  const [selectedInsight, setSelectedInsight] = React.useState('Leaderboard');
+  const [selectedMenuItem, setSelectedMenuItem] = React.useState('Leaderboard');
+  const [expandedSection, setExpandedSection] = React.useState<string>('Insights');
+  const [currentSection, setCurrentSection] = React.useState('Insights');
+  const [currentSubmenu, setCurrentSubmenu] = React.useState('Leaderboard');
+  const [selectedWorkspace, setSelectedWorkspace] = React.useState('Walter dev');
   const [messages, setMessages] = React.useState<Message[]>([]);
   const [inputValue, setInputValue] = React.useState('');
   const [isLoading, setIsLoading] = React.useState(false);
@@ -49,6 +55,15 @@ export default function App() {
 
   const generateAIResponse = (userInput: string): string => {
     const input = userInput.toLowerCase();
+
+    // Group calibration questions
+    if (input.includes('what is group calibration')) {
+      return "Group Calibration is a feature in Cresta's Quality Management (QM) system that allows multiple reviewers to evaluate the same conversations together in real-time. This ensures consistency in scoring and helps align your team on quality standards.\n\nKey benefits:\n• Establishes shared understanding of quality criteria\n• Reduces scoring variability between reviewers\n• Provides a collaborative learning experience\n• Helps onboard new QM reviewers faster\n\nYou can access Group Calibration from QM > QM Task Home > QM Calibration.";
+    }
+
+    if (input.includes('how does group calibration speed up')) {
+      return "Group Calibration speeds up your reviewers' workflows in several ways:\n\n**1. Reduces Re-calibration Time**\nBy aligning reviewers upfront, you avoid the need to go back and adjust scores later due to inconsistencies.\n\n**2. Faster Consensus Building**\nReviewers can discuss and resolve scoring differences in real-time during calibration sessions, rather than through back-and-forth messages.\n\n**3. Improved First-Pass Accuracy**\nOnce calibrated, reviewers make more consistent decisions independently, reducing the need for oversight and corrections.\n\n**4. Streamlined Onboarding**\nNew reviewers get up to speed faster by learning from experienced team members in live sessions.\n\nThis ultimately means your QM team can review more conversations with higher quality and less rework!";
+    }
 
     // Greeting patterns
     if (input.match(/^(hi|hello|hey|greetings)/)) {
@@ -95,18 +110,19 @@ export default function App() {
     return responses[Math.floor(Math.random() * responses.length)];
   };
 
-  const handleSendMessage = async () => {
-    if (!inputValue.trim() || isLoading) return;
+  const handleSendMessage = async (messageText?: string) => {
+    const textToSend = messageText || inputValue;
+    if (!textToSend.trim() || isLoading) return;
 
     const userMessage: Message = {
       id: Date.now().toString(),
       role: 'user',
-      content: inputValue,
+      content: textToSend,
       timestamp: new Date(),
     };
 
     setMessages((prev) => [...prev, userMessage]);
-    const currentInput = inputValue;
+    const currentInput = textToSend;
     setInputValue('');
     setIsLoading(true);
 
@@ -131,17 +147,19 @@ export default function App() {
   };
 
   return (
-    <div className="bg-[#ebf0f5] flex h-screen w-screen overflow-hidden">
+    <div className="bg-[#ebf0f5] flex h-screen w-screen overflow-hidden relative">
       {/* Left Sidebar */}
-      <div className={`
-        bg-[#ebf0f5] flex flex-col
-        transition-all duration-300 ease-in-out
-        ${isLeftNavCollapsed ? 'w-[60px]' : 'w-[208px]'}
-      `}>
+      <div
+        className={`
+          group bg-[#ebf0f5] flex flex-col fixed left-0 top-0 h-full z-40
+          transition-all duration-300 ease-in-out
+          ${isLeftNavCollapsed ? 'w-[60px] hover:w-[208px] hover:shadow-[2px_0_16px_rgba(0,0,0,0.1)]' : 'w-[208px]'}
+        `}
+      >
         {/* Logo */}
-        <div className={`flex items-center pt-7 pb-3 px-4 ${isLeftNavCollapsed ? 'justify-center' : 'justify-start'}`}>
-          {/* Full logo - shown when expanded */}
-          {!isLeftNavCollapsed && (
+        <div className={`flex items-center pt-7 pb-3 px-4 ${isLeftNavCollapsed ? 'justify-center group-hover:justify-start' : 'justify-start'}`}>
+          {/* Full logo - shown when expanded or hovering */}
+          <div className={isLeftNavCollapsed ? 'hidden group-hover:block' : 'block'}>
             <svg width="93" height="20" viewBox="0 0 838 180" fill="none" xmlns="http://www.w3.org/2000/svg">
               <path d="M172.491 101.016V100.986C170.021 98.7158 166.882 97.2859 163.492 96.9059C157.453 96.2359 151.624 99.3058 148.325 104.406C142.786 112.955 136.167 121.125 128.628 128.675C120.339 136.965 111.251 144.174 101.832 149.984L99.9225 151.144L102.022 151.984C106.321 153.594 111.131 155.004 116.12 155.794L117.04 155.954L117.78 155.394C124.868 150.304 131.697 144.504 138.066 138.125C146.385 129.805 153.704 120.775 159.793 111.275C159.793 111.275 160.193 110.675 160.833 109.815C161.542 108.855 163.032 109.045 163.492 110.145C163.732 110.725 163.912 111.345 164.092 112.055C168.021 130.425 164.922 145.824 155.333 155.404C152.164 158.574 148.335 161.064 143.945 162.804C139.556 164.534 134.597 165.544 129.208 165.764C122.509 166.054 115.22 165.134 107.671 163.114C99.3226 160.964 91.9638 157.634 86.8946 154.984C74.3267 148.554 62.0987 139.555 51.2305 128.685C39.4924 116.945 29.924 103.616 23.435 89.9761C29.934 76.3365 39.4924 63.0069 51.2305 51.2673C61.9787 40.5176 74.0667 31.5878 86.5047 25.168C91.6339 22.4681 99.2326 18.9882 107.901 16.7783C115.37 14.7884 122.589 13.9084 129.218 14.1884C134.607 14.4084 139.566 15.4183 143.955 17.1483C148.345 18.8782 152.174 21.3682 155.343 24.5481C164.922 34.1278 168.041 49.5273 164.102 67.8967C163.932 68.6067 163.742 69.2167 163.502 69.7967C163.052 70.9066 161.552 71.0866 160.843 70.1267C160.203 69.2567 159.813 68.6667 159.813 68.6667C153.714 59.177 146.405 50.1373 138.086 41.8175C131.707 35.4377 124.888 29.6479 117.8 24.5481L117.01 24.0081L116.14 24.1481C111.161 24.9281 106.351 26.348 102.052 27.958L99.9425 28.7579L101.862 29.9579C111.291 35.7677 120.369 42.9675 128.658 51.2673C136.307 58.917 143.015 67.2068 148.585 75.8965C151.524 80.4763 156.503 83.1363 161.792 83.1363C162.732 83.1363 163.682 83.0463 164.632 82.8763C167.601 82.3363 170.331 80.9763 172.521 78.9564C174.88 76.7765 176.5 73.9166 177.19 70.6967C179.549 59.717 179.769 49.4473 177.88 40.1576C175.85 30.1779 171.451 21.7381 164.812 15.1084C156.063 6.39862 143.955 1.47876 129.788 0.868783C117.47 0.348799 103.752 3.09872 89.9342 8.86854C76.1264 3.10872 62.3987 0.348799 50.0907 0.868783C35.923 1.46877 23.815 6.39861 15.0864 15.1283C6.34782 23.8681 1.42863 35.9677 0.818726 50.1473C0.298811 62.4669 3.04836 76.1865 8.81742 90.0061V90.0261C11.177 95.1859 14.0666 101.136 17.1361 106.586C23.725 117.745 32.0836 128.455 41.792 138.165C50.8405 147.214 60.7789 155.084 71.1272 161.454C71.9771 161.974 71.7871 163.264 70.8173 163.504C63.7584 165.274 56.9495 166.064 50.6606 165.794C45.2715 165.574 40.3123 164.564 35.923 162.834C31.5337 161.104 27.7043 158.614 24.5348 155.434C21.3654 152.264 18.8758 148.434 17.1361 144.044C15.4063 139.655 14.3965 134.695 14.1765 129.305C14.0566 126.365 14.1307 123.313 14.4607 120.184C14.4607 120.114 14.5365 119.455 14.5365 119.385L14.1365 118.755C11.277 114.475 8.46748 109.465 5.90789 104.486L4.59811 101.906L3.82823 104.716C1.52861 113.435 0.498779 121.945 0.828725 129.855C1.42863 144.024 6.35782 156.134 15.0864 164.864C23.815 173.594 35.923 178.523 50.0907 179.123C51.0705 179.163 52.0703 179.193 53.0602 179.193C64.5983 179.193 77.2262 176.433 89.9342 171.134C102.642 176.423 115.28 179.193 126.808 179.193C127.798 179.193 128.798 179.173 129.778 179.123C143.945 178.523 156.053 173.594 164.782 164.864C171.411 158.234 175.81 149.804 177.85 139.815C179.739 130.525 179.509 120.245 177.16 109.275C176.47 106.046 174.86 103.196 172.491 101.016ZM16.4462 70.8467C14.6665 63.7769 13.8866 56.9671 14.1565 50.6673C14.3765 45.2774 15.3863 40.3176 17.1161 35.9277C18.8458 31.5378 21.3354 27.708 24.5149 24.5381C27.6843 21.3682 31.5137 18.8782 35.903 17.1383C40.2923 15.4083 45.2515 14.3984 50.6406 14.1784C51.4404 14.1484 52.2603 14.1184 53.0702 14.1184C58.6793 14.1184 64.6483 14.9084 70.8173 16.4683C71.7871 16.7183 71.9871 17.9883 71.1272 18.5082C60.7789 24.8781 50.8305 32.7578 41.772 41.8075C32.7235 50.8573 24.8448 60.807 18.4758 71.1666C17.9559 72.0166 16.6761 71.8166 16.4362 70.8567L16.4462 70.8467Z" fill="#25252A"/>
               <path fillRule="evenodd" clipRule="evenodd" d="M740.313 52.511H704.183V140.741L689.033 140.771V52.531L652.903 52.501V38.791H740.313V52.501V52.511Z" fill="#25252A"/>
@@ -151,158 +169,338 @@ export default function App() {
               <path fillRule="evenodd" clipRule="evenodd" d="M821.203 140.769H837.243L802.593 48.3885C800.173 41.6085 793.983 37.2285 786.773 37.2285H786.743C779.523 37.2385 773.333 41.6285 770.933 48.4285L736.393 140.759H752.423L761.283 117.259H812.303L821.193 140.759L821.203 140.769ZM766.373 103.819L785.463 51.0085C785.943 49.6885 787.813 49.6885 788.283 51.0085L807.243 103.819H766.373Z" fill="#25252A"/>
               <path fillRule="evenodd" clipRule="evenodd" d="M411.253 99.9605C423.423 98.1505 438.273 86.7805 438.273 69.3106C438.273 51.8406 425.753 38.8105 404.483 38.8105H358.323V140.751H372.883V98.2905C372.883 96.9405 374.513 96.2806 375.453 97.2406L417.913 140.741H436.673L396.833 100.501C404.043 100.501 408.273 100.351 411.233 99.9605H411.253ZM372.903 52.4905H404.493C416.583 52.4905 423.423 59.4006 423.423 69.3106C423.423 79.2206 416.583 87.8005 404.493 87.8005H372.903V52.5005V52.4905Z" fill="#25252A"/>
             </svg>
-          )}
+          </div>
 
-          {/* Small logo - shown when collapsed */}
-          {isLeftNavCollapsed && (
+          {/* Small logo - shown when collapsed and not hovering */}
+          <div className={isLeftNavCollapsed ? 'block group-hover:hidden' : 'hidden'}>
             <svg width="20" height="20" viewBox="0 0 180 180" fill="none" xmlns="http://www.w3.org/2000/svg">
               <path d="M172.539 101.016V100.986C170.069 98.7158 166.93 97.2858 163.54 96.9059C157.501 96.2359 151.672 99.3058 148.373 104.406C142.834 112.955 136.215 121.125 128.676 128.675C120.387 136.965 111.299 144.174 101.88 149.984L99.9706 151.144L102.07 151.984C106.37 153.594 111.179 155.004 116.168 155.794L117.088 155.954L117.828 155.394C124.917 150.304 131.745 144.504 138.114 138.125C146.433 129.805 153.752 120.775 159.841 111.275C159.841 111.275 160.241 110.675 160.881 109.815C161.591 108.855 163.08 109.045 163.54 110.145C163.78 110.725 163.96 111.345 164.14 112.055C168.069 130.425 164.97 145.824 155.382 155.404C152.212 158.574 148.383 161.064 143.993 162.804C139.604 164.534 134.645 165.544 129.256 165.764C122.557 166.054 115.268 165.134 107.719 163.114C99.3707 160.964 92.0119 157.634 86.9427 154.984C74.3748 148.554 62.1468 139.555 51.2786 128.685C39.5405 116.945 29.9721 103.616 23.4831 89.9761C29.9821 76.3365 39.5405 63.0069 51.2786 51.2673C62.0268 40.5176 74.1148 31.5878 86.5528 25.168C91.682 22.4681 99.2807 18.9882 107.949 16.7783C115.418 14.7884 122.637 13.9084 129.266 14.1884C134.655 14.4084 139.614 15.4183 144.003 17.1483C148.393 18.8782 152.222 21.3682 155.392 24.5481C164.97 34.1278 168.089 49.5273 164.15 67.8967C163.98 68.6067 163.79 69.2167 163.55 69.7967C163.1 70.9067 161.601 71.0866 160.891 70.1267C160.251 69.2567 159.861 68.6667 159.861 68.6667C153.762 59.177 146.453 50.1373 138.134 41.8175C131.755 35.4377 124.937 29.6479 117.848 24.5481L117.058 24.0081L116.188 24.1481C111.209 24.9281 106.4 26.348 102.1 27.958L99.9906 28.7579L101.91 29.9579C111.339 35.7677 120.417 42.9675 128.706 51.2673C136.355 58.917 143.064 67.2068 148.633 75.8965C151.572 80.4764 156.551 83.1363 161.84 83.1363C162.78 83.1363 163.73 83.0463 164.68 82.8763C167.65 82.3363 170.379 80.9764 172.569 78.9564C174.928 76.7765 176.548 73.9166 177.238 70.6967C179.598 59.717 179.818 49.4473 177.928 40.1576C175.898 30.1779 171.499 21.7381 164.86 15.1084C156.111 6.39862 144.003 1.47876 129.836 0.868783C117.518 0.348799 103.8 3.09872 89.9822 8.86854C76.1745 3.10872 62.4467 0.348799 50.1388 0.868783C35.9711 1.46877 23.8631 6.39861 15.1345 15.1283C6.39592 23.8681 1.47672 35.9677 0.866822 50.1473C0.346907 62.4669 3.09646 76.1865 8.86551 90.0061V90.0261C11.2251 95.1859 14.1147 101.136 17.1842 106.586C23.7731 117.745 32.1317 128.455 41.8401 138.165C50.8886 147.214 60.827 155.084 71.1753 161.454C72.0252 161.974 71.8352 163.264 70.8654 163.504C63.8065 165.274 56.9976 166.064 50.7087 165.794C45.3196 165.574 40.3604 164.564 35.9711 162.834C31.5818 161.104 27.7524 158.614 24.5829 155.434C21.4135 152.264 18.9239 148.434 17.1842 144.044C15.4544 139.655 14.4446 134.695 14.2246 129.305C14.1047 126.365 14.1788 123.313 14.5088 120.184C14.5088 120.114 14.5846 119.455 14.5846 119.385L14.1846 118.755C11.3251 114.475 8.51557 109.465 5.95599 104.486L4.6462 101.906L3.87633 104.716C1.57671 113.435 0.546874 121.945 0.87682 129.855C1.47672 144.024 6.40592 156.134 15.1345 164.864C23.8631 173.594 35.9711 178.523 50.1388 179.123C51.1186 179.163 52.1184 179.193 53.1083 179.193C64.6464 179.193 77.2743 176.433 89.9822 171.134C102.69 176.423 115.328 179.193 126.856 179.193C127.846 179.193 128.846 179.173 129.826 179.123C143.993 178.523 156.101 173.594 164.83 164.864C171.459 158.234 175.858 149.804 177.898 139.815C179.788 130.525 179.558 120.245 177.208 109.275C176.518 106.046 174.908 103.196 172.539 101.016ZM16.4943 70.8467C14.7146 63.7769 13.9347 56.9671 14.2046 50.6673C14.4246 45.2774 15.4344 40.3176 17.1642 35.9277C18.8939 31.5378 21.3835 27.708 24.5629 24.5381C27.7324 21.3682 31.5618 18.8782 35.9511 17.1383C40.3404 15.4083 45.2996 14.3984 50.6887 14.1784C51.4885 14.1484 52.3084 14.1184 53.1183 14.1184C58.7274 14.1184 64.6964 14.9084 70.8654 16.4683C71.8352 16.7183 72.0352 17.9883 71.1753 18.5082C60.827 24.8781 50.8786 32.7578 41.8201 41.8075C32.7716 50.8573 24.8929 60.807 18.5239 71.1666C18.004 72.0166 16.7242 71.8166 16.4843 70.8567L16.4943 70.8467Z" fill="#25252A"/>
             </svg>
-          )}
+          </div>
         </div>
 
         {/* Navigation */}
         <div className="flex-1 flex flex-col gap-3 overflow-y-auto">
-          {!isLeftNavCollapsed ? (
-            <div className="flex flex-col">
+          {/* Full navigation - shown when expanded or hovering */}
+          <div className={isLeftNavCollapsed ? 'hidden group-hover:flex group-hover:flex-col' : 'flex flex-col'}>
               {/* Insights Section */}
-              <div className="flex items-center justify-between px-4 py-2">
+              <div
+                onClick={() => setExpandedSection(expandedSection === 'Insights' ? '' : 'Insights')}
+                className="flex items-center justify-between px-4 py-2 cursor-pointer hover:bg-[#dee5eb] transition-colors"
+              >
                 <div className="flex items-center gap-2">
                   <IconTrendingUp size={16} stroke={1.5} className="text-[#25252a]" />
                   <span className="text-xs font-semibold text-[#25252a]">Insights</span>
                 </div>
-                <IconChevronDown size={14} stroke={1.5} className="text-[#25252a]" />
+                <IconChevronDown
+                  size={14}
+                  stroke={1.5}
+                  className={`text-[#25252a] transition-transform ${expandedSection === 'Insights' ? '' : '-rotate-90'}`}
+                />
               </div>
+              {expandedSection === 'Insights' && (
+                <div className="flex flex-col pl-10 pr-4 pb-2 overflow-hidden transition-all duration-200 ease-in-out animate-slideDown">
+                  <button onClick={() => { setSelectedMenuItem('Performance'); setCurrentSection('Insights'); setCurrentSubmenu('Performance'); }} className={`py-1.5 text-left cursor-pointer ${selectedMenuItem === 'Performance' ? 'px-2 bg-white rounded shadow-sm -mx-2' : ''}`}>
+                    <span className={`text-sm ${selectedMenuItem === 'Performance' ? 'text-[#25252a] font-medium' : 'text-[#5d666f]'}`}>Performance</span>
+                  </button>
+                  <button onClick={() => { setSelectedMenuItem('Assistance'); setCurrentSection('Insights'); setCurrentSubmenu('Assistance'); }} className={`py-1.5 text-left cursor-pointer ${selectedMenuItem === 'Assistance' ? 'px-2 bg-white rounded shadow-sm -mx-2' : ''}`}>
+                    <span className={`text-sm ${selectedMenuItem === 'Assistance' ? 'text-[#25252a] font-medium' : 'text-[#5d666f]'}`}>Assistance</span>
+                  </button>
+                  <button onClick={() => { setSelectedMenuItem('Leaderboard'); setCurrentSection('Insights'); setCurrentSubmenu('Leaderboard'); }} className={`py-1.5 text-left cursor-pointer ${selectedMenuItem === 'Leaderboard' ? 'px-2 bg-white rounded shadow-sm -mx-2' : ''}`}>
+                    <span className={`text-sm ${selectedMenuItem === 'Leaderboard' ? 'text-[#25252a] font-medium' : 'text-[#5d666f]'}`}>Leaderboard</span>
+                  </button>
+                  <button onClick={() => { setSelectedMenuItem('Dashboard Builder'); setCurrentSection('Insights'); setCurrentSubmenu('Dashboard Builder'); }} className={`py-1.5 text-left cursor-pointer ${selectedMenuItem === 'Dashboard Builder' ? 'px-2 bg-white rounded shadow-sm -mx-2' : ''}`}>
+                    <span className={`text-sm ${selectedMenuItem === 'Dashboard Builder' ? 'text-[#25252a] font-medium' : 'text-[#5d666f]'}`}>Dashboard Builder</span>
+                  </button>
+                  <button onClick={() => { setSelectedMenuItem('AI Analyst'); setCurrentSection('Insights'); setCurrentSubmenu('AI Analyst'); }} className={`py-1.5 text-left cursor-pointer ${selectedMenuItem === 'AI Analyst' ? 'px-2 bg-white rounded shadow-sm -mx-2' : ''}`}>
+                    <span className={`text-sm ${selectedMenuItem === 'AI Analyst' ? 'text-[#25252a] font-medium' : 'text-[#5d666f]'}`}>AI Analyst</span>
+                  </button>
+                  <button onClick={() => { setSelectedMenuItem('Trends and Anomalies'); setCurrentSection('Insights'); setCurrentSubmenu('Trends and Anomalies'); }} className={`py-1.5 text-left cursor-pointer ${selectedMenuItem === 'Trends and Anomalies' ? 'px-2 bg-white rounded shadow-sm -mx-2' : ''}`}>
+                    <span className={`text-sm ${selectedMenuItem === 'Trends and Anomalies' ? 'text-[#25252a] font-medium' : 'text-[#5d666f]'}`}>Trends and Anomalies</span>
+                  </button>
+                  <button onClick={() => { setSelectedMenuItem('Outcome Insights'); setCurrentSection('Insights'); setCurrentSubmenu('Outcome Insights'); }} className={`py-1.5 text-left cursor-pointer ${selectedMenuItem === 'Outcome Insights' ? 'px-2 bg-white rounded shadow-sm -mx-2' : ''}`}>
+                    <span className={`text-sm ${selectedMenuItem === 'Outcome Insights' ? 'text-[#25252a] font-medium' : 'text-[#5d666f]'}`}>Outcome Insights</span>
+                  </button>
+                  <button onClick={() => { setSelectedMenuItem('Topic Discovery'); setCurrentSection('Insights'); setCurrentSubmenu('Topic Discovery'); }} className={`py-1.5 text-left cursor-pointer ${selectedMenuItem === 'Topic Discovery' ? 'px-2 bg-white rounded shadow-sm -mx-2' : ''}`}>
+                    <span className={`text-sm ${selectedMenuItem === 'Topic Discovery' ? 'text-[#25252a] font-medium' : 'text-[#5d666f]'}`}>Topic Discovery</span>
+                  </button>
+                </div>
+              )}
 
-              {/* Submenu */}
-              <div className="flex flex-col pl-10 pr-4 pb-6">
-                <button
-                  onClick={() => setSelectedInsight('Performance')}
-                  className={`py-1.5 text-left ${
-                    selectedInsight === 'Performance' ? 'px-2 bg-white rounded shadow-sm -mx-2' : ''
-                  }`}
-                >
-                  <span className={`text-sm ${selectedInsight === 'Performance' ? 'text-[#25252a] font-medium' : 'text-[#5d666f]'}`}>
-                    Performance
-                  </span>
-                </button>
-                <button
-                  onClick={() => setSelectedInsight('Assistance')}
-                  className={`py-1.5 text-left ${
-                    selectedInsight === 'Assistance' ? 'px-2 bg-white rounded shadow-sm -mx-2' : ''
-                  }`}
-                >
-                  <span className={`text-sm ${selectedInsight === 'Assistance' ? 'text-[#25252a] font-medium' : 'text-[#5d666f]'}`}>
-                    Assistance
-                  </span>
-                </button>
-                <button
-                  onClick={() => setSelectedInsight('Leaderboard')}
-                  className={`py-1.5 text-left ${
-                    selectedInsight === 'Leaderboard' ? 'px-2 bg-white rounded shadow-sm -mx-2' : ''
-                  }`}
-                >
-                  <span className={`text-sm ${selectedInsight === 'Leaderboard' ? 'text-[#25252a] font-medium' : 'text-[#5d666f]'}`}>
-                    Leaderboard
-                  </span>
-                </button>
-                <button
-                  onClick={() => setSelectedInsight('Dashboard Builder')}
-                  className={`py-1.5 text-left ${
-                    selectedInsight === 'Dashboard Builder' ? 'px-2 bg-white rounded shadow-sm -mx-2' : ''
-                  }`}
-                >
-                  <span className={`text-sm ${selectedInsight === 'Dashboard Builder' ? 'text-[#25252a] font-medium' : 'text-[#5d666f]'}`}>
-                    Dashboard Builder
-                  </span>
-                </button>
-                <button
-                  onClick={() => setSelectedInsight('AI Analyst')}
-                  className={`py-1.5 text-left ${
-                    selectedInsight === 'AI Analyst' ? 'px-2 bg-white rounded shadow-sm -mx-2' : ''
-                  }`}
-                >
-                  <span className={`text-sm ${selectedInsight === 'AI Analyst' ? 'text-[#25252a] font-medium' : 'text-[#5d666f]'}`}>
-                    AI Analyst
-                  </span>
-                </button>
-                <button
-                  onClick={() => setSelectedInsight('Trends and Anomalies')}
-                  className={`py-1.5 text-left ${
-                    selectedInsight === 'Trends and Anomalies' ? 'px-2 bg-white rounded shadow-sm -mx-2' : ''
-                  }`}
-                >
-                  <span className={`text-sm ${selectedInsight === 'Trends and Anomalies' ? 'text-[#25252a] font-medium' : 'text-[#5d666f]'}`}>
-                    Trends and Anomalies
-                  </span>
-                </button>
-                <button
-                  onClick={() => setSelectedInsight('Outcome Insights')}
-                  className={`py-1.5 text-left ${
-                    selectedInsight === 'Outcome Insights' ? 'px-2 bg-white rounded shadow-sm -mx-2' : ''
-                  }`}
-                >
-                  <span className={`text-sm ${selectedInsight === 'Outcome Insights' ? 'text-[#25252a] font-medium' : 'text-[#5d666f]'}`}>
-                    Outcome Insights
-                  </span>
-                </button>
-                <button
-                  onClick={() => setSelectedInsight('Topic Discovery')}
-                  className={`py-1.5 text-left ${
-                    selectedInsight === 'Topic Discovery' ? 'px-2 bg-white rounded shadow-sm -mx-2' : ''
-                  }`}
-                >
-                  <span className={`text-sm ${selectedInsight === 'Topic Discovery' ? 'text-[#25252a] font-medium' : 'text-[#5d666f]'}`}>
-                    Topic Discovery
-                  </span>
-                </button>
+              {/* Conversations Section */}
+              <div
+                onClick={() => setExpandedSection(expandedSection === 'Conversations' ? '' : 'Conversations')}
+                className="flex items-center justify-between px-4 py-2 cursor-pointer hover:bg-[#dee5eb] transition-colors"
+              >
+                <div className="flex items-center gap-2">
+                  <IconMessage2 size={16} stroke={1.5} className="text-[#25252a]" />
+                  <span className="text-xs font-semibold text-[#25252a]">Conversations</span>
+                </div>
+                <IconChevronDown
+                  size={14}
+                  stroke={1.5}
+                  className={`text-[#25252a] transition-transform ${expandedSection === 'Conversations' ? '' : '-rotate-90'}`}
+                />
               </div>
+              {expandedSection === 'Conversations' && (
+                <div className="flex flex-col pl-10 pr-4 pb-2 overflow-hidden transition-all duration-200 ease-in-out animate-slideDown">
+                  <button onClick={() => { setSelectedMenuItem('Live Conversations'); setCurrentSection('Conversations'); setCurrentSubmenu('Live Conversations'); }} className={`py-1.5 text-left cursor-pointer ${selectedMenuItem === 'Live Conversations' ? 'px-2 bg-white rounded shadow-sm -mx-2' : ''}`}>
+                    <span className={`text-sm ${selectedMenuItem === 'Live Conversations' ? 'text-[#25252a] font-medium' : 'text-[#5d666f]'}`}>Live Conversations</span>
+                  </button>
+                  <button onClick={() => { setSelectedMenuItem('Closed Conversations'); setCurrentSection('Conversations'); setCurrentSubmenu('Closed Conversations'); }} className={`py-1.5 text-left cursor-pointer ${selectedMenuItem === 'Closed Conversations' ? 'px-2 bg-white rounded shadow-sm -mx-2' : ''}`}>
+                    <span className={`text-sm ${selectedMenuItem === 'Closed Conversations' ? 'text-[#25252a] font-medium' : 'text-[#5d666f]'}`}>Closed Conversations</span>
+                  </button>
+                  <button onClick={() => { setSelectedMenuItem('Agent Ops Center'); setCurrentSection('Conversations'); setCurrentSubmenu('Agent Ops Center'); }} className={`py-1.5 text-left cursor-pointer ${selectedMenuItem === 'Agent Ops Center' ? 'px-2 bg-white rounded shadow-sm -mx-2' : ''}`}>
+                    <span className={`text-sm ${selectedMenuItem === 'Agent Ops Center' ? 'text-[#25252a] font-medium' : 'text-[#5d666f]'}`}>Agent Ops Center</span>
+                  </button>
+                  <button onClick={() => { setSelectedMenuItem('Recordings'); setCurrentSection('Conversations'); setCurrentSubmenu('Recordings'); }} className={`py-1.5 text-left cursor-pointer ${selectedMenuItem === 'Recordings' ? 'px-2 bg-white rounded shadow-sm -mx-2' : ''}`}>
+                    <span className={`text-sm ${selectedMenuItem === 'Recordings' ? 'text-[#25252a] font-medium' : 'text-[#5d666f]'}`}>Recordings</span>
+                  </button>
+                </div>
+              )}
 
-              {/* Other Menu Items */}
-              <MenuItem icon={<IconMessage2 size={16} stroke={1.5} />} label="Conversations" />
-              <MenuItem icon={<IconMask size={16} stroke={1.5} />} label="Opera" />
-              <MenuItem icon={<IconUsers size={16} stroke={1.5} />} label="Coaching" />
-              <MenuItem icon={<IconReportAnalytics size={16} stroke={1.5} />} label="QM" />
-              <MenuItem icon={<IconRobot size={16} stroke={1.5} />} label="AI Agents" />
-              <MenuItem icon={<IconShieldLock size={16} stroke={1.5} />} label="Admin" />
-              <MenuItem icon={<IconTool size={16} stroke={1.5} />} label="System" />
-            </div>
-          ) : (
-            <div className="flex flex-col items-center gap-3 pt-2">
+              {/* Opera Section */}
+              <div
+                onClick={() => setExpandedSection(expandedSection === 'Opera' ? '' : 'Opera')}
+                className="flex items-center justify-between px-4 py-2 cursor-pointer hover:bg-[#dee5eb] transition-colors"
+              >
+                <div className="flex items-center gap-2">
+                  <IconMask size={16} stroke={1.5} className="text-[#25252a]" />
+                  <span className="text-xs font-semibold text-[#25252a]">Opera</span>
+                </div>
+                <IconChevronDown
+                  size={14}
+                  stroke={1.5}
+                  className={`text-[#25252a] transition-transform ${expandedSection === 'Opera' ? '' : '-rotate-90'}`}
+                />
+              </div>
+              {expandedSection === 'Opera' && (
+                <div className="flex flex-col pl-10 pr-4 pb-2 overflow-hidden transition-all duration-200 ease-in-out animate-slideDown">
+                  <div className={`flex items-center justify-between py-1.5 -mr-2 ${selectedMenuItem === 'Opera Rules' ? 'px-2 bg-white rounded shadow-sm -mx-2' : ''}`}>
+                    <button onClick={() => { setSelectedMenuItem('Opera Rules'); setCurrentSection('Opera'); setCurrentSubmenu('Opera Rules'); }} className="flex-1 text-left cursor-pointer">
+                      <span className={`text-sm ${selectedMenuItem === 'Opera Rules' ? 'text-[#25252a] font-medium' : 'text-[#5d666f]'}`}>Opera Rules</span>
+                    </button>
+                    <button className="w-6 h-6 flex items-center justify-center cursor-pointer rounded hover:bg-white transition-colors">
+                      <IconPlus size={12} stroke={1.5} className="text-[#5d666f]" />
+                    </button>
+                  </div>
+                  <button onClick={() => { setSelectedMenuItem('Opera Simulator'); setCurrentSection('Opera'); setCurrentSubmenu('Opera Simulator'); }} className={`py-1.5 text-left cursor-pointer ${selectedMenuItem === 'Opera Simulator' ? 'px-2 bg-white rounded shadow-sm -mx-2' : ''}`}>
+                    <span className={`text-sm ${selectedMenuItem === 'Opera Simulator' ? 'text-[#25252a] font-medium' : 'text-[#5d666f]'}`}>Opera Simulator</span>
+                  </button>
+                  <button onClick={() => { setSelectedMenuItem('Blocks'); setCurrentSection('Opera'); setCurrentSubmenu('Blocks'); }} className={`py-1.5 text-left cursor-pointer ${selectedMenuItem === 'Blocks' ? 'px-2 bg-white rounded shadow-sm -mx-2' : ''}`}>
+                    <span className={`text-sm ${selectedMenuItem === 'Blocks' ? 'text-[#25252a] font-medium' : 'text-[#5d666f]'}`}>Blocks</span>
+                  </button>
+                </div>
+              )}
+
+              {/* Coaching Section */}
+              <div
+                onClick={() => setExpandedSection(expandedSection === 'Coaching' ? '' : 'Coaching')}
+                className="flex items-center justify-between px-4 py-2 cursor-pointer hover:bg-[#dee5eb] transition-colors"
+              >
+                <div className="flex items-center gap-2">
+                  <IconUsers size={16} stroke={1.5} className="text-[#25252a]" />
+                  <span className="text-xs font-semibold text-[#25252a]">Coaching</span>
+                </div>
+                <IconChevronDown
+                  size={14}
+                  stroke={1.5}
+                  className={`text-[#25252a] transition-transform ${expandedSection === 'Coaching' ? '' : '-rotate-90'}`}
+                />
+              </div>
+              {expandedSection === 'Coaching' && (
+                <div className="flex flex-col pl-10 pr-4 pb-2 overflow-hidden transition-all duration-200 ease-in-out animate-slideDown">
+                  <button onClick={() => { setSelectedMenuItem('Coaching Hub'); setCurrentSection('Coaching'); setCurrentSubmenu('Coaching Hub'); }} className={`py-1.5 text-left cursor-pointer ${selectedMenuItem === 'Coaching Hub' ? 'px-2 bg-white rounded shadow-sm -mx-2' : ''}`}>
+                    <span className={`text-sm ${selectedMenuItem === 'Coaching Hub' ? 'text-[#25252a] font-medium' : 'text-[#5d666f]'}`}>Coaching Hub</span>
+                  </button>
+                  <button onClick={() => { setSelectedMenuItem('Coaching Report'); setCurrentSection('Coaching'); setCurrentSubmenu('Coaching Report'); }} className={`py-1.5 text-left cursor-pointer ${selectedMenuItem === 'Coaching Report' ? 'px-2 bg-white rounded shadow-sm -mx-2' : ''}`}>
+                    <span className={`text-sm ${selectedMenuItem === 'Coaching Report' ? 'text-[#25252a] font-medium' : 'text-[#5d666f]'}`}>Coaching Report</span>
+                  </button>
+                  <button onClick={() => { setSelectedMenuItem('Training Simulator'); setCurrentSection('Coaching'); setCurrentSubmenu('Training Simulator'); }} className={`py-1.5 text-left cursor-pointer ${selectedMenuItem === 'Training Simulator' ? 'px-2 bg-white rounded shadow-sm -mx-2' : ''}`}>
+                    <span className={`text-sm ${selectedMenuItem === 'Training Simulator' ? 'text-[#25252a] font-medium' : 'text-[#5d666f]'}`}>Training Simulator</span>
+                  </button>
+                  <button onClick={() => { setSelectedMenuItem('Library'); setCurrentSection('Coaching'); setCurrentSubmenu('Library'); }} className={`py-1.5 text-left cursor-pointer ${selectedMenuItem === 'Library' ? 'px-2 bg-white rounded shadow-sm -mx-2' : ''}`}>
+                    <span className={`text-sm ${selectedMenuItem === 'Library' ? 'text-[#25252a] font-medium' : 'text-[#5d666f]'}`}>Library</span>
+                  </button>
+                </div>
+              )}
+
+              {/* QM Section */}
+              <div
+                onClick={() => setExpandedSection(expandedSection === 'QM' ? '' : 'QM')}
+                className="flex items-center justify-between px-4 py-2 cursor-pointer hover:bg-[#dee5eb] transition-colors"
+              >
+                <div className="flex items-center gap-2">
+                  <IconReportAnalytics size={16} stroke={1.5} className="text-[#25252a]" />
+                  <span className="text-xs font-semibold text-[#25252a]">QM</span>
+                </div>
+                <IconChevronDown
+                  size={14}
+                  stroke={1.5}
+                  className={`text-[#25252a] transition-transform ${expandedSection === 'QM' ? '' : '-rotate-90'}`}
+                />
+              </div>
+              {expandedSection === 'QM' && (
+                <div className="flex flex-col pl-10 pr-4 pb-2 overflow-hidden transition-all duration-200 ease-in-out animate-slideDown">
+                  <button onClick={() => { setSelectedMenuItem('QM Report'); setCurrentSection('QM'); setCurrentSubmenu('QM Report'); }} className={`py-1.5 text-left cursor-pointer ${selectedMenuItem === 'QM Report' ? 'px-2 bg-white rounded shadow-sm -mx-2' : ''}`}>
+                    <span className={`text-sm ${selectedMenuItem === 'QM Report' ? 'text-[#25252a] font-medium' : 'text-[#5d666f]'}`}>QM Report</span>
+                  </button>
+                  <button onClick={() => { setSelectedMenuItem('QM Task Home'); setCurrentSection('QM'); setCurrentSubmenu('QM Task Home'); }} className={`py-1.5 text-left cursor-pointer ${selectedMenuItem === 'QM Task Home' ? 'px-2 bg-white rounded shadow-sm -mx-2' : ''}`}>
+                    <span className={`text-sm ${selectedMenuItem === 'QM Task Home' ? 'text-[#25252a] font-medium' : 'text-[#5d666f]'}`}>QM Task Home</span>
+                  </button>
+                </div>
+              )}
+
+              {/* AI Agents Section */}
+              <div
+                onClick={() => setExpandedSection(expandedSection === 'AI Agents' ? '' : 'AI Agents')}
+                className="flex items-center justify-between px-4 py-2 cursor-pointer hover:bg-[#dee5eb] transition-colors"
+              >
+                <div className="flex items-center gap-2">
+                  <IconRobot size={16} stroke={1.5} className="text-[#25252a]" />
+                  <span className="text-xs font-semibold text-[#25252a]">AI Agents</span>
+                </div>
+                <IconChevronDown
+                  size={14}
+                  stroke={1.5}
+                  className={`text-[#25252a] transition-transform ${expandedSection === 'AI Agents' ? '' : '-rotate-90'}`}
+                />
+              </div>
+              {expandedSection === 'AI Agents' && (
+                <div className="flex flex-col pl-10 pr-4 pb-2 overflow-hidden transition-all duration-200 ease-in-out animate-slideDown">
+                  <button onClick={() => { setSelectedMenuItem('AI Agents'); setCurrentSection('AI Agents'); setCurrentSubmenu('AI Agents'); }} className={`py-1.5 text-left cursor-pointer ${selectedMenuItem === 'AI Agents' ? 'px-2 bg-white rounded shadow-sm -mx-2' : ''}`}>
+                    <span className={`text-sm ${selectedMenuItem === 'AI Agents' ? 'text-[#25252a] font-medium' : 'text-[#5d666f]'}`}>AI Agents</span>
+                  </button>
+                  <button onClick={() => { setSelectedMenuItem('Custom Code'); setCurrentSection('AI Agents'); setCurrentSubmenu('Custom Code'); }} className={`py-1.5 text-left cursor-pointer ${selectedMenuItem === 'Custom Code' ? 'px-2 bg-white rounded shadow-sm -mx-2' : ''}`}>
+                    <span className={`text-sm ${selectedMenuItem === 'Custom Code' ? 'text-[#25252a] font-medium' : 'text-[#5d666f]'}`}>Custom Code</span>
+                  </button>
+                  <button onClick={() => { setSelectedMenuItem('Testing & Evaluation'); setCurrentSection('AI Agents'); setCurrentSubmenu('Testing & Evaluation'); }} className={`py-1.5 text-left cursor-pointer ${selectedMenuItem === 'Testing & Evaluation' ? 'px-2 bg-white rounded shadow-sm -mx-2' : ''}`}>
+                    <span className={`text-sm ${selectedMenuItem === 'Testing & Evaluation' ? 'text-[#25252a] font-medium' : 'text-[#5d666f]'}`}>Testing & Evaluation</span>
+                  </button>
+                  <button onClick={() => { setSelectedMenuItem('AI Feedback'); setCurrentSection('AI Agents'); setCurrentSubmenu('AI Feedback'); }} className={`py-1.5 text-left cursor-pointer ${selectedMenuItem === 'AI Feedback' ? 'px-2 bg-white rounded shadow-sm -mx-2' : ''}`}>
+                    <span className={`text-sm ${selectedMenuItem === 'AI Feedback' ? 'text-[#25252a] font-medium' : 'text-[#5d666f]'}`}>AI Feedback</span>
+                  </button>
+                </div>
+              )}
+
+              {/* Admin Section */}
+              <div
+                onClick={() => setExpandedSection(expandedSection === 'Admin' ? '' : 'Admin')}
+                className="flex items-center justify-between px-4 py-2 cursor-pointer hover:bg-[#dee5eb] transition-colors"
+              >
+                <div className="flex items-center gap-2">
+                  <IconShieldLock size={16} stroke={1.5} className="text-[#25252a]" />
+                  <span className="text-xs font-semibold text-[#25252a]">Admin</span>
+                </div>
+                <IconChevronDown
+                  size={14}
+                  stroke={1.5}
+                  className={`text-[#25252a] transition-transform ${expandedSection === 'Admin' ? '' : '-rotate-90'}`}
+                />
+              </div>
+              {expandedSection === 'Admin' && (
+                <div className="flex flex-col pl-10 pr-4 pb-2 overflow-hidden transition-all duration-200 ease-in-out animate-slideDown">
+                  <button onClick={() => { setSelectedMenuItem('Performance Config'); setCurrentSection('Admin'); setCurrentSubmenu('Performance Config'); }} className={`py-1.5 text-left cursor-pointer ${selectedMenuItem === 'Performance Config' ? 'px-2 bg-white rounded shadow-sm -mx-2' : ''}`}>
+                    <span className={`text-sm ${selectedMenuItem === 'Performance Config' ? 'text-[#25252a] font-medium' : 'text-[#5d666f]'}`}>Performance Config</span>
+                  </button>
+                  <button onClick={() => { setSelectedMenuItem('Knowledge Base'); setCurrentSection('Admin'); setCurrentSubmenu('Knowledge Base'); }} className={`py-1.5 text-left cursor-pointer ${selectedMenuItem === 'Knowledge Base' ? 'px-2 bg-white rounded shadow-sm -mx-2' : ''}`}>
+                    <span className={`text-sm ${selectedMenuItem === 'Knowledge Base' ? 'text-[#25252a] font-medium' : 'text-[#5d666f]'}`}>Knowledge Base</span>
+                  </button>
+                  <button onClick={() => { setSelectedMenuItem('Guided Workflows'); setCurrentSection('Admin'); setCurrentSubmenu('Guided Workflows'); }} className={`py-1.5 text-left cursor-pointer ${selectedMenuItem === 'Guided Workflows' ? 'px-2 bg-white rounded shadow-sm -mx-2' : ''}`}>
+                    <span className={`text-sm ${selectedMenuItem === 'Guided Workflows' ? 'text-[#25252a] font-medium' : 'text-[#5d666f]'}`}>Guided Workflows</span>
+                  </button>
+                  <button onClick={() => { setSelectedMenuItem('Org Management'); setCurrentSection('Admin'); setCurrentSubmenu('Org Management'); }} className={`py-1.5 text-left cursor-pointer ${selectedMenuItem === 'Org Management' ? 'px-2 bg-white rounded shadow-sm -mx-2' : ''}`}>
+                    <span className={`text-sm ${selectedMenuItem === 'Org Management' ? 'text-[#25252a] font-medium' : 'text-[#5d666f]'}`}>Org Management</span>
+                  </button>
+                  <button onClick={() => { setSelectedMenuItem('Notification Mgmt'); setCurrentSection('Admin'); setCurrentSubmenu('Notification Mgmt'); }} className={`py-1.5 text-left cursor-pointer ${selectedMenuItem === 'Notification Mgmt' ? 'px-2 bg-white rounded shadow-sm -mx-2' : ''}`}>
+                    <span className={`text-sm ${selectedMenuItem === 'Notification Mgmt' ? 'text-[#25252a] font-medium' : 'text-[#5d666f]'}`}>Notification Mgmt</span>
+                  </button>
+                </div>
+              )}
+
+              {/* System Section */}
+              <div
+                onClick={() => setExpandedSection(expandedSection === 'System' ? '' : 'System')}
+                className="flex items-center justify-between px-4 py-2 cursor-pointer hover:bg-[#dee5eb] transition-colors"
+              >
+                <div className="flex items-center gap-2">
+                  <IconTool size={16} stroke={1.5} className="text-[#25252a]" />
+                  <span className="text-xs font-semibold text-[#25252a]">System</span>
+                </div>
+                <IconChevronDown
+                  size={14}
+                  stroke={1.5}
+                  className={`text-[#25252a] transition-transform ${expandedSection === 'System' ? '' : '-rotate-90'}`}
+                />
+              </div>
+              {expandedSection === 'System' && (
+                <div className="flex flex-col pl-10 pr-4 pb-2 overflow-hidden transition-all duration-200 ease-in-out animate-slideDown">
+                  <button onClick={() => { setSelectedMenuItem('Data Management'); setCurrentSection('System'); setCurrentSubmenu('Data Management'); }} className={`py-1.5 text-left cursor-pointer ${selectedMenuItem === 'Data Management' ? 'px-2 bg-white rounded shadow-sm -mx-2' : ''}`}>
+                    <span className={`text-sm ${selectedMenuItem === 'Data Management' ? 'text-[#25252a] font-medium' : 'text-[#5d666f]'}`}>Data Management</span>
+                  </button>
+                  <button onClick={() => { setSelectedMenuItem('Integrations'); setCurrentSection('System'); setCurrentSubmenu('Integrations'); }} className={`py-1.5 text-left cursor-pointer ${selectedMenuItem === 'Integrations' ? 'px-2 bg-white rounded shadow-sm -mx-2' : ''}`}>
+                    <span className={`text-sm ${selectedMenuItem === 'Integrations' ? 'text-[#25252a] font-medium' : 'text-[#5d666f]'}`}>Integrations</span>
+                  </button>
+                  <button onClick={() => { setSelectedMenuItem('Webhooks'); setCurrentSection('System'); setCurrentSubmenu('Webhooks'); }} className={`py-1.5 text-left cursor-pointer ${selectedMenuItem === 'Webhooks' ? 'px-2 bg-white rounded shadow-sm -mx-2' : ''}`}>
+                    <span className={`text-sm ${selectedMenuItem === 'Webhooks' ? 'text-[#25252a] font-medium' : 'text-[#5d666f]'}`}>Webhooks</span>
+                  </button>
+                  <button onClick={() => { setSelectedMenuItem('Jobs'); setCurrentSection('System'); setCurrentSubmenu('Jobs'); }} className={`py-1.5 text-left cursor-pointer ${selectedMenuItem === 'Jobs' ? 'px-2 bg-white rounded shadow-sm -mx-2' : ''}`}>
+                    <span className={`text-sm ${selectedMenuItem === 'Jobs' ? 'text-[#25252a] font-medium' : 'text-[#5d666f]'}`}>Jobs</span>
+                  </button>
+                  <button onClick={() => { setSelectedMenuItem('Deployment Config'); setCurrentSection('System'); setCurrentSubmenu('Deployment Config'); }} className={`py-1.5 text-left cursor-pointer ${selectedMenuItem === 'Deployment Config' ? 'px-2 bg-white rounded shadow-sm -mx-2' : ''}`}>
+                    <span className={`text-sm ${selectedMenuItem === 'Deployment Config' ? 'text-[#25252a] font-medium' : 'text-[#5d666f]'}`}>Deployment Config</span>
+                  </button>
+                  <button onClick={() => { setSelectedMenuItem('Role Permissions'); setCurrentSection('System'); setCurrentSubmenu('Role Permissions'); }} className={`py-1.5 text-left cursor-pointer ${selectedMenuItem === 'Role Permissions' ? 'px-2 bg-white rounded shadow-sm -mx-2' : ''}`}>
+                    <span className={`text-sm ${selectedMenuItem === 'Role Permissions' ? 'text-[#25252a] font-medium' : 'text-[#5d666f]'}`}>Role Permissions</span>
+                  </button>
+                  <button onClick={() => { setSelectedMenuItem('Common Words'); setCurrentSection('System'); setCurrentSubmenu('Common Words'); }} className={`py-1.5 text-left cursor-pointer ${selectedMenuItem === 'Common Words' ? 'px-2 bg-white rounded shadow-sm -mx-2' : ''}`}>
+                    <span className={`text-sm ${selectedMenuItem === 'Common Words' ? 'text-[#25252a] font-medium' : 'text-[#5d666f]'}`}>Common Words</span>
+                  </button>
+                  <button onClick={() => { setSelectedMenuItem('API Credentials'); setCurrentSection('System'); setCurrentSubmenu('API Credentials'); }} className={`py-1.5 text-left cursor-pointer ${selectedMenuItem === 'API Credentials' ? 'px-2 bg-white rounded shadow-sm -mx-2' : ''}`}>
+                    <span className={`text-sm ${selectedMenuItem === 'API Credentials' ? 'text-[#25252a] font-medium' : 'text-[#5d666f]'}`}>API Credentials</span>
+                  </button>
+                  <button onClick={() => { setSelectedMenuItem('Config Wizard'); setCurrentSection('System'); setCurrentSubmenu('Config Wizard'); }} className={`py-1.5 text-left cursor-pointer ${selectedMenuItem === 'Config Wizard' ? 'px-2 bg-white rounded shadow-sm -mx-2' : ''}`}>
+                    <span className={`text-sm ${selectedMenuItem === 'Config Wizard' ? 'text-[#25252a] font-medium' : 'text-[#5d666f]'}`}>Config Wizard</span>
+                  </button>
+                </div>
+              )}
+          </div>
+
+          {/* Collapsed navigation - shown when collapsed and not hovering */}
+          <div className={isLeftNavCollapsed ? 'flex flex-col items-center gap-3 pt-2 group-hover:hidden' : 'hidden'}>
               {/* Collapsed state - show only icons */}
-              <button className="w-8 h-8 flex items-center justify-center rounded hover:bg-[#dee5eb] transition-colors">
+              <button className="w-8 h-8 flex items-center justify-center rounded hover:bg-[#dee5eb] transition-colors cursor-pointer">
                 <IconTrendingUp size={16} stroke={1.5} className="text-[#25252a]" />
               </button>
-              <button className="w-8 h-8 flex items-center justify-center rounded hover:bg-[#dee5eb] transition-colors">
+              <button className="w-8 h-8 flex items-center justify-center rounded hover:bg-[#dee5eb] transition-colors cursor-pointer">
                 <IconMessage2 size={16} stroke={1.5} className="text-[#25252a]" />
               </button>
-              <button className="w-8 h-8 flex items-center justify-center rounded hover:bg-[#dee5eb] transition-colors">
+              <button className="w-8 h-8 flex items-center justify-center rounded hover:bg-[#dee5eb] transition-colors cursor-pointer">
                 <IconMask size={16} stroke={1.5} className="text-[#25252a]" />
               </button>
-              <button className="w-8 h-8 flex items-center justify-center rounded hover:bg-[#dee5eb] transition-colors">
+              <button className="w-8 h-8 flex items-center justify-center rounded hover:bg-[#dee5eb] transition-colors cursor-pointer">
                 <IconUsers size={16} stroke={1.5} className="text-[#25252a]" />
               </button>
-              <button className="w-8 h-8 flex items-center justify-center rounded hover:bg-[#dee5eb] transition-colors">
+              <button className="w-8 h-8 flex items-center justify-center rounded hover:bg-[#dee5eb] transition-colors cursor-pointer">
                 <IconReportAnalytics size={16} stroke={1.5} className="text-[#25252a]" />
               </button>
-              <button className="w-8 h-8 flex items-center justify-center rounded hover:bg-[#dee5eb] transition-colors">
+              <button className="w-8 h-8 flex items-center justify-center rounded hover:bg-[#dee5eb] transition-colors cursor-pointer">
                 <IconRobot size={16} stroke={1.5} className="text-[#25252a]" />
               </button>
-              <button className="w-8 h-8 flex items-center justify-center rounded hover:bg-[#dee5eb] transition-colors">
+              <button className="w-8 h-8 flex items-center justify-center rounded hover:bg-[#dee5eb] transition-colors cursor-pointer">
                 <IconShieldLock size={16} stroke={1.5} className="text-[#25252a]" />
               </button>
-              <button className="w-8 h-8 flex items-center justify-center rounded hover:bg-[#dee5eb] transition-colors">
+              <button className="w-8 h-8 flex items-center justify-center rounded hover:bg-[#dee5eb] transition-colors cursor-pointer">
                 <IconTool size={16} stroke={1.5} className="text-[#25252a]" />
               </button>
-            </div>
-          )}
+          </div>
         </div>
 
-        {/* Collapse Button */}
+        {/* Collapse/Expand Button */}
         <button
           onClick={() => setIsLeftNavCollapsed(!isLeftNavCollapsed)}
-          className={`flex items-center gap-2 px-4 py-2 mb-2 hover:bg-[#dee5eb] transition-colors w-full ${
-            isLeftNavCollapsed ? 'justify-center' : ''
+          className={`flex items-center gap-2 px-4 py-2 mb-2 hover:bg-[#dee5eb] transition-colors w-full cursor-pointer ${
+            isLeftNavCollapsed ? 'justify-center group-hover:justify-start' : ''
           }`}
         >
           <IconLayoutSidebarLeftCollapse
@@ -310,54 +508,93 @@ export default function App() {
             stroke={1.5}
             className={`text-[#25252a] ${isLeftNavCollapsed ? 'rotate-180' : ''}`}
           />
-          <span className={`text-xs font-semibold text-[#25252a] ${isLeftNavCollapsed ? 'hidden' : ''}`}>
-            Collapse
-          </span>
+          {/* Show "Collapse" when expanded */}
+          {!isLeftNavCollapsed && (
+            <span className="text-xs font-semibold text-[#25252a]">
+              Collapse
+            </span>
+          )}
+          {/* Show "Expand" when collapsed and hovering */}
+          {isLeftNavCollapsed && (
+            <span className="text-xs font-semibold text-[#25252a] hidden group-hover:inline">
+              Expand
+            </span>
+          )}
         </button>
       </div>
 
       {/* Main Content Area */}
-      <div className="flex-1 flex flex-col">
+      <div className={`flex-1 flex flex-col transition-all duration-300 ease-in-out ${isLeftNavCollapsed ? 'ml-[60px]' : 'ml-[208px]'}`}>
         {/* Top Header */}
-        <div className="bg-[#ebf0f5] flex items-center justify-between px-6 pt-5 pb-3">
+        <div className="bg-[#ebf0f5] flex items-center justify-between pr-6 pt-5 pb-3">
           {/* Breadcrumb */}
-          <div className="flex items-center gap-2">
-            <div className="flex items-center gap-1.5">
-              <IconBriefcase size={14} stroke={1.5} className="text-[#25252a]" />
-              <span className="text-sm font-medium text-[#25252a]">Walter dev</span>
-              <IconChevronDown size={12} stroke={1.5} className="text-[#5d666f]" />
-            </div>
+          <div className="flex items-center gap-2 flex-1 pl-6">
+            <Menu shadow="md" position="bottom-start" offset={4}>
+              <Menu.Target>
+                <div className="flex items-center gap-1.5 cursor-pointer pl-2 pr-1 py-1 rounded hover:bg-[#dee5eb] transition-colors">
+                  <IconBriefcase size={14} stroke={1.5} className="text-[#25252a]" />
+                  <span className="text-sm font-medium text-[#25252a]">{selectedWorkspace}</span>
+                  <IconChevronDown size={12} stroke={1.5} className="text-[#5d666f]" />
+                </div>
+              </Menu.Target>
+
+              <Menu.Dropdown className="!min-w-[180px] !border-[#dee5eb] !rounded-lg">
+                <div className="px-3 pt-2 pb-1">
+                  <span className="text-[10px] font-medium text-[#a1b0b7] uppercase tracking-wide">Use case</span>
+                </div>
+                {['Voice demo', 'Chat demo', 'Walter dev', 'Telco', 'Insurance', 'Retail'].map((workspace) => (
+                  <Menu.Item
+                    key={workspace}
+                    onClick={() => setSelectedWorkspace(workspace)}
+                    className={`!text-sm !cursor-pointer ${
+                      selectedWorkspace === workspace
+                        ? '!bg-[#f8f9fa] !text-[#25252a] !font-medium'
+                        : '!text-[#5d666f]'
+                    }`}
+                    rightSection={selectedWorkspace === workspace ? <IconCheck size={14} stroke={2} className="text-[#25252a]" /> : null}
+                  >
+                    {workspace}
+                  </Menu.Item>
+                ))}
+              </Menu.Dropdown>
+            </Menu>
             <span className="text-sm text-[#5d666f]">/</span>
-            <span className="text-sm font-medium text-[#5d666f]">Insights</span>
+            <span className="text-sm font-medium text-[#5d666f]">{currentSection}</span>
             <span className="text-sm text-[#5d666f]">/</span>
-            <span className="text-sm font-medium text-[#25252a]">{selectedInsight}</span>
+            <span className="text-sm font-medium text-[#25252a]">{currentSubmenu}</span>
           </div>
 
-          {/* Search Bar */}
-          <ExpandableSearchBar
-            onSearch={(query) => {
-              console.log('Searching for:', query);
-            }}
-          />
+          {/* Search Bar - Center aligned */}
+          <div className="flex-1 flex justify-center">
+            <ExpandableSearchBar
+              onSearch={(query) => {
+                console.log('Searching for:', query);
+              }}
+              onAskAI={(question) => {
+                setIsRightPanelCollapsed(false);
+                handleSendMessage(question);
+              }}
+            />
+          </div>
 
           {/* Right Icons */}
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 flex-1 justify-end">
             <button
               onClick={() => setIsRightPanelCollapsed(!isRightPanelCollapsed)}
-              className={`w-7 h-7 flex items-center justify-center rounded transition-colors ${
+              className={`w-7 h-7 flex items-center justify-center rounded transition-colors cursor-pointer ${
                 isRightPanelCollapsed ? 'hover:bg-[#dee5eb]' : 'bg-white shadow-sm hover:bg-[#f8f9fa]'
               }`}
             >
               <IconHeadset size={16} stroke={1.5} className="text-[#25252a]" />
             </button>
-            <button className="w-7 h-7 flex items-center justify-center rounded">
+            <button className="w-7 h-7 flex items-center justify-center rounded cursor-pointer">
               <IconBell size={16} stroke={1.5} className="text-[#25252a]" />
             </button>
-            <div className="flex items-center gap-1 h-7 px-2 rounded">
+            <div className="flex items-center gap-1 h-7 px-2 rounded cursor-pointer">
               <span className="text-2xl">🇺🇸</span>
               <IconChevronDown size={12} stroke={1.5} className="text-[#25252a]" />
             </div>
-            <div className="flex items-center gap-1 h-7 px-2 rounded">
+            <div className="flex items-center gap-1 h-7 px-2 rounded cursor-pointer">
               <img
                 src={`${import.meta.env.BASE_URL}profile.png`}
                 alt="Profile"
@@ -369,7 +606,7 @@ export default function App() {
         </div>
 
         {/* Main Content */}
-        <div className="flex-1 p-2 -ml-2 pl-4">
+        <div className="flex-1 p-2 -ml-8 pl-10">
           <div className="bg-white rounded-xl border border-[#dee5eb] h-full shadow-[0_0_25px_0px_rgba(0,0,0,0.05)]" />
         </div>
       </div>
@@ -379,15 +616,15 @@ export default function App() {
         className={`
           bg-[#ebf0f5] flex flex-col border-l border-[#dee5eb] overflow-hidden
           transition-all duration-300 ease-in-out
-          ${isRightPanelCollapsed ? 'w-0 border-0' : 'w-[400px]'}
+          ${isRightPanelCollapsed ? 'w-0 border-0' : 'w-[340px]'}
         `}
       >
         {/* Header */}
-        <div className="flex items-center justify-between p-4 border-b border-[#dee5eb]">
+        <div className="flex items-center justify-between p-4 border-b border-[#dee5eb] bg-[#ebf0f5]">
           <div className="flex items-center gap-2.5">
             <button
               onClick={() => setIsRightPanelCollapsed(true)}
-              className="w-7 h-7 flex items-center justify-center bg-white border border-[#dee5eb] rounded hover:bg-[#f8f9fa] transition-colors"
+              className="w-7 h-7 flex items-center justify-center bg-white border border-[#dee5eb] rounded hover:bg-[#f8f9fa] transition-colors cursor-pointer"
             >
               <IconLayoutSidebarLeftCollapse size={16} stroke={1.5} className="text-[#25252a]" />
             </button>
@@ -397,14 +634,14 @@ export default function App() {
           <div className="flex items-center gap-2.5">
             <button
               onClick={() => setMessages([])}
-              className="w-7 h-7 flex items-center justify-center bg-white border border-[#dee5eb] rounded hover:bg-[#f8f9fa] transition-colors"
+              className="w-7 h-7 flex items-center justify-center bg-white border border-[#dee5eb] rounded hover:bg-[#f8f9fa] transition-colors cursor-pointer"
               title="Clear chat"
             >
               <IconHistory size={16} stroke={1.5} className="text-[#25252a]" />
             </button>
             <button
               onClick={() => setMessages([])}
-              className="w-7 h-7 flex items-center justify-center bg-white border border-[#dee5eb] rounded hover:bg-[#f8f9fa] transition-colors"
+              className="w-7 h-7 flex items-center justify-center bg-white border border-[#dee5eb] rounded hover:bg-[#f8f9fa] transition-colors cursor-pointer"
               title="New chat"
             >
               <IconPlus size={16} stroke={1.5} className="text-[#25252a]" />
@@ -413,7 +650,7 @@ export default function App() {
         </div>
 
         {/* Chat Content Area - fills remaining space */}
-        <div className="flex-1 overflow-y-auto px-4 py-4">
+        <div className="flex-1 overflow-y-auto px-4 py-4 bg-[#ebf0f5]">
           {messages.length === 0 ? (
             <div className="flex flex-col items-center justify-center h-full text-center">
               <IconHeadset size={48} stroke={1.5} className="text-[#a1b0b7] mb-4" />
@@ -427,25 +664,23 @@ export default function App() {
                   key={message.id}
                   className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
                 >
-                  <div
-                    className={`max-w-[80%] rounded-2xl px-4 py-2.5 ${
-                      message.role === 'user'
-                        ? 'bg-[#205ae3] text-white'
-                        : 'bg-[#f8f9fa] text-[#25252a]'
-                    }`}
-                  >
-                    <p className="text-sm whitespace-pre-wrap">{message.content}</p>
-                  </div>
+                  {message.role === 'user' ? (
+                    <div className="max-w-[80%] bg-[#f8f9fa] px-4 py-3 rounded-tl-[12px] rounded-tr-[12px] rounded-bl-[12px] rounded-br-[2px]">
+                      <p className="text-sm font-normal leading-[1.55] text-[#25252a] whitespace-pre-wrap">{message.content}</p>
+                    </div>
+                  ) : (
+                    <div className="max-w-[80%]">
+                      <p className="text-sm font-normal leading-[1.55] text-[#25252a] whitespace-pre-wrap">{message.content}</p>
+                    </div>
+                  )}
                 </div>
               ))}
               {isLoading && (
                 <div className="flex justify-start">
-                  <div className="bg-[#f8f9fa] rounded-2xl px-4 py-2.5">
-                    <div className="flex gap-1">
-                      <div className="w-2 h-2 bg-[#a1b0b7] rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></div>
-                      <div className="w-2 h-2 bg-[#a1b0b7] rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></div>
-                      <div className="w-2 h-2 bg-[#a1b0b7] rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></div>
-                    </div>
+                  <div className="flex gap-1">
+                    <div className="w-2 h-2 bg-[#a1b0b7] rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></div>
+                    <div className="w-2 h-2 bg-[#a1b0b7] rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></div>
+                    <div className="w-2 h-2 bg-[#a1b0b7] rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></div>
                   </div>
                 </div>
               )}
@@ -455,27 +690,27 @@ export default function App() {
         </div>
 
         {/* Chat Input - sticky to bottom */}
-        <div className="p-4">
-          <div className="bg-white border border-[#dee5eb] rounded-2xl shadow-md p-4">
+        <div className="p-4 bg-[#ebf0f5]">
+          <div className="bg-white border border-[#dee5eb] rounded-2xl shadow-[0px_7px_7px_0px_rgba(0,0,0,0.04),0px_10px_15px_0px_rgba(0,0,0,0.05),0px_1px_3px_0px_rgba(0,0,0,0.05)] px-3 py-2">
             <textarea
               value={inputValue}
               onChange={(e) => setInputValue(e.target.value)}
               onKeyDown={handleKeyPress}
-              placeholder="Ask Anything"
-              className="w-full h-14 bg-transparent outline-none resize-none text-sm text-[#25252a] placeholder:text-[#a1b0b7]"
+              placeholder="Ask any support question"
+              className="w-full min-h-[60px] bg-transparent outline-none resize-none text-xs font-normal leading-[1.55] text-[#25252a] placeholder:text-[#a1b0b7]"
               disabled={isLoading}
             />
-            <div className="flex items-center justify-end gap-2 mt-3">
-              <button className="w-5.5 h-5.5 flex items-center justify-center rounded-full hover:bg-[#f8f9fa]">
+            <div className="flex items-center justify-end gap-2 pt-1.5">
+              <button className="w-[22px] h-[22px] flex items-center justify-center rounded hover:bg-[#f8f9fa] cursor-pointer transition-colors">
                 <IconMicrophone size={14} stroke={1.5} className="text-[#a1b0b7]" />
               </button>
               <button
                 onClick={handleSendMessage}
                 disabled={!inputValue.trim() || isLoading}
-                className={`w-5.5 h-5.5 flex items-center justify-center rounded-full ${
+                className={`w-[22px] h-[22px] flex items-center justify-center rounded-full ${
                   !inputValue.trim() || isLoading
                     ? 'bg-[#a1b0b7] cursor-not-allowed'
-                    : 'bg-[#205ae3] hover:bg-[#1a4bc7]'
+                    : 'bg-[#205ae3] hover:bg-[#1a4bc7] cursor-pointer'
                 }`}
               >
                 <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
@@ -486,19 +721,6 @@ export default function App() {
           </div>
         </div>
       </div>
-    </div>
-  )
-}
-
-// Helper component for menu items
-function MenuItem({ icon, label }: { icon: React.ReactNode; label: string }) {
-  return (
-    <div className="flex items-center justify-between px-4 py-2">
-      <div className="flex items-center gap-2 text-[#25252a]">
-        {icon}
-        <span className="text-xs font-semibold text-[#25252a]">{label}</span>
-      </div>
-      <IconChevronDown size={14} stroke={1.5} className="text-[#25252a]" />
     </div>
   )
 }
