@@ -1,7 +1,7 @@
 import React from 'react'
 import { Menu, Tooltip } from '@mantine/core'
 import { ExpandableSearchBar } from './ExpandableSearchBar'
-import { LanguageDropdown, useLanguageDropdown, type Language } from './LanguageDropdown'
+import { LanguageDropdown, useLanguageDropdown } from './LanguageDropdown'
 import {
   IconTrendingUp,
   IconChevronDown,

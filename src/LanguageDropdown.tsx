@@ -42,7 +42,7 @@ type LanguageDropdownProps = {
   onClose: () => void;
   selectedLanguage: Language;
   onSelectLanguage: (language: Language) => void;
-  buttonRef: React.RefObject<HTMLDivElement>;
+  buttonRef: React.RefObject<HTMLDivElement | null>;
 };
 
 export const LanguageDropdown: React.FC<LanguageDropdownProps> = ({
