@@ -1,6 +1,7 @@
 import React from 'react'
 import { Menu, Tooltip } from '@mantine/core'
 import { ExpandableSearchBar } from './ExpandableSearchBar'
+import { LanguageDropdown, useLanguageDropdown, type Language } from './LanguageDropdown'
 import {
   IconTrendingUp,
   IconChevronDown,
@@ -44,6 +45,7 @@ export default function App() {
   const [isLoading, setIsLoading] = React.useState(false);
   const [showDummyMenu, setShowDummyMenu] = React.useState(true);
   const chatEndRef = React.useRef<HTMLDivElement>(null);
+  const languageDropdown = useLanguageDropdown();
 
   // Menu configuration
   const getMenuItems = (section: string) => {
@@ -636,11 +638,22 @@ export default function App() {
               </button>
             </Tooltip>
             <Tooltip label="Language and feedbacks" position="bottom" withArrow>
-              <div className="flex items-center gap-1 h-7 px-2 rounded cursor-pointer hover:bg-[#dee5eb] transition-colors">
-                <span className="text-2xl">🇺🇸</span>
+              <div
+                ref={languageDropdown.buttonRef}
+                onClick={languageDropdown.toggleDropdown}
+                className="flex items-center gap-1 h-7 px-2 rounded cursor-pointer hover:bg-[#dee5eb] transition-colors"
+              >
+                <span className="text-lg">{String.fromCodePoint(...languageDropdown.selectedLanguage.countryCode.toUpperCase().split('').map(char => 127397 + char.charCodeAt(0)))}</span>
                 <IconChevronDown size={12} stroke={1.5} className="text-[#25252a]" />
               </div>
             </Tooltip>
+            <LanguageDropdown
+              isOpen={languageDropdown.isOpen}
+              onClose={languageDropdown.closeDropdown}
+              selectedLanguage={languageDropdown.selectedLanguage}
+              onSelectLanguage={languageDropdown.setSelectedLanguage}
+              buttonRef={languageDropdown.buttonRef}
+            />
             <Menu shadow="md" position="bottom-end" offset={4}>
               <Menu.Target>
                 <div className="flex items-center gap-1 h-7 px-2 rounded cursor-pointer hover:bg-[#dee5eb] transition-colors">
