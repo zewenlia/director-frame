@@ -205,12 +205,17 @@ export default function App() {
       <div
         className={`
           group bg-[#ebf0f5] flex flex-col fixed left-0 top-0 h-full z-40
-          transition-all duration-300 ease-in-out
-          ${isLeftNavCollapsed ? 'w-[60px] hover:w-[208px] hover:shadow-[2px_0_16px_rgba(0,0,0,0.1)]' : 'w-[208px]'}
+          transition-all duration-200 ease-in-out
+          ${isLeftNavCollapsed ? 'w-[60px] overflow-hidden hover:overflow-visible' : 'w-[208px]'}
         `}
       >
-        {/* Logo */}
-        <div className={`flex items-center pt-6 pb-3 px-4 ${isLeftNavCollapsed ? 'justify-center group-hover:justify-start' : 'justify-start'}`}>
+        {/* Expanded background overlay on hover */}
+        <div className={`absolute left-0 top-0 h-full bg-[#ebf0f5] transition-all duration-200 ease-in-out ${isLeftNavCollapsed ? 'w-[60px] group-hover:w-[208px] group-hover:shadow-[2px_0_16px_rgba(0,0,0,0.1)]' : 'w-[208px]'} -z-10`} />
+
+        {/* Inner content wrapper - always 208px wide, but positioned to show left 60px when collapsed */}
+        <div className="w-[208px] h-full flex flex-col relative">
+          {/* Logo */}
+          <div className={`flex items-center pt-6 pb-3 ${isLeftNavCollapsed ? 'w-[60px] justify-center group-hover:w-[208px] group-hover:justify-start group-hover:px-4' : 'w-[208px] justify-start px-4'}`}>
           {/* Full logo - shown when expanded or hovering */}
           <div className={isLeftNavCollapsed ? 'hidden group-hover:block' : 'block'}>
             <svg width="93" height="20" viewBox="0 0 838 180" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -232,8 +237,8 @@ export default function App() {
           </div>
         </div>
 
-        {/* Navigation */}
-        <div className="flex-1 flex flex-col gap-3 overflow-y-auto mt-3.5">
+          {/* Navigation */}
+          <div className="flex-1 flex flex-col gap-3 overflow-y-auto mt-3.5">
           {/* Full navigation - shown when expanded or hovering */}
           <div className={isLeftNavCollapsed ? 'hidden group-hover:flex group-hover:flex-col' : 'flex flex-col'}>
               {/* Insights Section */}
@@ -492,10 +497,10 @@ export default function App() {
                   </div>
                 </div>
               )}
-          </div>
+            </div>
 
-          {/* Collapsed navigation - shown when collapsed and not hovering */}
-          <div className={isLeftNavCollapsed ? 'flex flex-col items-center gap-3 pt-2 group-hover:hidden' : 'hidden'}>
+            {/* Collapsed navigation - shown when collapsed and not hovering */}
+            <div className={isLeftNavCollapsed ? 'flex flex-col items-center gap-3 pt-2 group-hover:hidden w-[60px]' : 'hidden'}>
               {/* Collapsed state - show only icons */}
               <button className="w-8 h-8 flex items-center justify-center rounded hover:bg-[#dee5eb] transition-colors cursor-pointer">
                 <IconTrendingUp size={16} stroke={1.5} className="text-[#25252a]" />
@@ -521,16 +526,16 @@ export default function App() {
               <button className="w-8 h-8 flex items-center justify-center rounded hover:bg-[#dee5eb] transition-colors cursor-pointer">
                 <IconTool size={16} stroke={1.5} className="text-[#25252a]" />
               </button>
+            </div>
           </div>
-        </div>
 
-        {/* Collapse/Expand Button */}
-        <button
-          onClick={() => setIsLeftNavCollapsed(!isLeftNavCollapsed)}
-          className={`flex items-center gap-2 px-4 py-2 mb-2 hover:bg-[#dee5eb] transition-colors w-full cursor-pointer ${
-            isLeftNavCollapsed ? 'justify-center group-hover:justify-start' : ''
-          }`}
-        >
+          {/* Collapse/Expand Button */}
+          <button
+            onClick={() => setIsLeftNavCollapsed(!isLeftNavCollapsed)}
+            className={`flex items-center gap-2 py-2 mb-2 hover:bg-[#dee5eb] transition-colors cursor-pointer ${
+              isLeftNavCollapsed ? 'w-[60px] justify-center group-hover:w-[208px] group-hover:justify-start group-hover:px-4' : 'w-[208px] justify-start px-4'
+            }`}
+          >
           {isLeftNavCollapsed ? (
             <IconChevronRight size={16} stroke={1.5} className="text-[#25252a]" />
           ) : (
@@ -549,6 +554,7 @@ export default function App() {
             </span>
           )}
         </button>
+        </div>
       </div>
 
       {/* Main Content Area */}
