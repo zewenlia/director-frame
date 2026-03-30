@@ -92,13 +92,12 @@ export function ExpandableSearchBar({
           bg-white
           flex flex-col
           overflow-hidden
-          shadow-[0px_0px_4px_0px_rgba(0,0,0,0.25)]
           transition-all duration-150 ease-in-out
           absolute z-50
           -translate-y-[18px]
           ${isExpanded && showDropdown
-            ? 'w-[583px] rounded-lg'
-            : 'w-[220px] rounded-full bg-[#f8f9fa] border border-[#dee5eb] shadow-[0px_4px_4px_0px_rgba(0,0,0,0.04)]'
+            ? 'w-[583px] rounded-lg shadow-[0px_0px_4px_0px_rgba(0,0,0,0.25)]'
+            : 'w-[220px] rounded-full bg-[#f8f9fa] border border-[#dee5eb]'
           }
         `}
       >

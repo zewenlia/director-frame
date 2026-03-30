@@ -1,5 +1,5 @@
 import React from 'react'
-import { Menu } from '@mantine/core'
+import { Menu, Tooltip } from '@mantine/core'
 import { ExpandableSearchBar } from './ExpandableSearchBar'
 import {
   IconTrendingUp,
@@ -11,7 +11,6 @@ import {
   IconReportAnalytics,
   IconShieldLock,
   IconTool,
-  IconLayoutSidebarLeftCollapse,
   IconBriefcase,
   IconHeadset,
   IconBell,
@@ -19,6 +18,11 @@ import {
   IconPlus,
   IconMicrophone,
   IconCheck,
+  IconUser,
+  IconSettings,
+  IconLogout,
+  IconChevronLeft,
+  IconChevronRight,
 } from '@tabler/icons-react'
 
 type Message = {
@@ -31,15 +35,65 @@ type Message = {
 export default function App() {
   const [isRightPanelCollapsed, setIsRightPanelCollapsed] = React.useState(false);
   const [isLeftNavCollapsed, setIsLeftNavCollapsed] = React.useState(false);
-  const [selectedMenuItem, setSelectedMenuItem] = React.useState('Leaderboard');
-  const [expandedSection, setExpandedSection] = React.useState<string>('Insights');
-  const [currentSection, setCurrentSection] = React.useState('Insights');
-  const [currentSubmenu, setCurrentSubmenu] = React.useState('Leaderboard');
-  const [selectedWorkspace, setSelectedWorkspace] = React.useState('Walter dev');
+  const [selectedMenuItem, setSelectedMenuItem] = React.useState('Closed Conversations');
+  const [expandedSection, setExpandedSection] = React.useState<string>('Conversations');
+  const [currentSection, setCurrentSection] = React.useState('Conversations');
+  const [currentSubmenu, setCurrentSubmenu] = React.useState('Closed Conversations');
+  const [selectedWorkspace, setSelectedWorkspace] = React.useState('Voice demo');
   const [messages, setMessages] = React.useState<Message[]>([]);
   const [inputValue, setInputValue] = React.useState('');
   const [isLoading, setIsLoading] = React.useState(false);
+  const [showDummyMenu, setShowDummyMenu] = React.useState(true);
   const chatEndRef = React.useRef<HTMLDivElement>(null);
+
+  // Menu configuration
+  const getMenuItems = (section: string) => {
+    if (!showDummyMenu) {
+      // Secret version - real menu items
+      switch (section) {
+        case 'Insights':
+          return ['Performance', 'Assistance', 'Leaderboard', 'Dashboard Builder', 'AI Analyst', 'Trends and Anomalies', 'Outcome Insights', 'Topic Discovery'];
+        case 'Conversations':
+          return ['Live Conversations', 'Closed Conversations', 'Agent Ops Center', 'Recordings'];
+        case 'Opera':
+          return ['Opera Rules', 'Opera Simulator', 'Blocks'];
+        case 'Coaching':
+          return ['Coaching Hub', 'Coaching Report', 'Training Simulator', 'Library'];
+        case 'QM':
+          return ['QM Report', 'QM Task Home'];
+        case 'AI Agents':
+          return ['AI Agents', 'Custom Code', 'Testing & Evaluation', 'AI Feedback'];
+        case 'Admin':
+          return ['Performance Config', 'Knowledge Base', 'Guided Workflows', 'Org Management', 'Notification Mgmt'];
+        case 'System':
+          return ['Data Management', 'Integrations', 'Webhooks', 'Jobs', 'Deployment Config', 'Role Permissions', 'Common Words', 'API Credentials', 'Config Wizard'];
+        default:
+          return [];
+      }
+    } else {
+      // Dummy version - generic labels for certain sections
+      switch (section) {
+        case 'Insights':
+          return ['Insights feature 1', 'Insights feature 2', 'Insights feature 3', 'Insights feature 4', 'Insights feature 5', 'Insights feature 6', 'Insights feature 7', 'Insights feature 8'];
+        case 'Conversations':
+          return ['Live Conversations', 'Closed Conversations', 'Agent Ops Center', 'Recordings'];
+        case 'Opera':
+          return ['Opera feature 1', 'Opera feature 2', 'Opera feature 3'];
+        case 'Coaching':
+          return ['Coaching feature 1', 'Coaching feature 2', 'Coaching feature 3', 'Coaching feature 4'];
+        case 'QM':
+          return ['QM feature 1', 'QM feature 2'];
+        case 'AI Agents':
+          return ['AI Agents feature 1', 'AI Agents feature 2', 'AI Agents feature 3', 'AI Agents feature 4'];
+        case 'Admin':
+          return ['Admin feature 1', 'Admin feature 2', 'Admin feature 3', 'Admin feature 4', 'Admin feature 5'];
+        case 'System':
+          return ['System feature 1', 'System feature 2', 'System feature 3', 'System feature 4', 'System feature 5', 'System feature 6', 'System feature 7', 'System feature 8', 'System feature 9'];
+        default:
+          return [];
+      }
+    }
+  };
 
   // When right panel opens, auto-collapse left nav if it's open
   React.useEffect(() => {
@@ -157,7 +211,7 @@ export default function App() {
         `}
       >
         {/* Logo */}
-        <div className={`flex items-center pt-7 pb-3 px-4 ${isLeftNavCollapsed ? 'justify-center group-hover:justify-start' : 'justify-start'}`}>
+        <div className={`flex items-center pt-6 pb-3 px-4 ${isLeftNavCollapsed ? 'justify-center group-hover:justify-start' : 'justify-start'}`}>
           {/* Full logo - shown when expanded or hovering */}
           <div className={isLeftNavCollapsed ? 'hidden group-hover:block' : 'block'}>
             <svg width="93" height="20" viewBox="0 0 838 180" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -180,7 +234,7 @@ export default function App() {
         </div>
 
         {/* Navigation */}
-        <div className="flex-1 flex flex-col gap-3 overflow-y-auto">
+        <div className="flex-1 flex flex-col gap-3 overflow-y-auto mt-3.5">
           {/* Full navigation - shown when expanded or hovering */}
           <div className={isLeftNavCollapsed ? 'hidden group-hover:flex group-hover:flex-col' : 'flex flex-col'}>
               {/* Insights Section */}
@@ -200,30 +254,15 @@ export default function App() {
               </div>
               {expandedSection === 'Insights' && (
                 <div className="flex flex-col pl-10 pr-4 pb-2 overflow-hidden transition-all duration-200 ease-in-out animate-slideDown">
-                  <button onClick={() => { setSelectedMenuItem('Performance'); setCurrentSection('Insights'); setCurrentSubmenu('Performance'); }} className={`py-1.5 text-left cursor-pointer ${selectedMenuItem === 'Performance' ? 'px-2 bg-white rounded shadow-sm -mx-2' : ''}`}>
-                    <span className={`text-sm ${selectedMenuItem === 'Performance' ? 'text-[#25252a] font-medium' : 'text-[#5d666f]'}`}>Performance</span>
-                  </button>
-                  <button onClick={() => { setSelectedMenuItem('Assistance'); setCurrentSection('Insights'); setCurrentSubmenu('Assistance'); }} className={`py-1.5 text-left cursor-pointer ${selectedMenuItem === 'Assistance' ? 'px-2 bg-white rounded shadow-sm -mx-2' : ''}`}>
-                    <span className={`text-sm ${selectedMenuItem === 'Assistance' ? 'text-[#25252a] font-medium' : 'text-[#5d666f]'}`}>Assistance</span>
-                  </button>
-                  <button onClick={() => { setSelectedMenuItem('Leaderboard'); setCurrentSection('Insights'); setCurrentSubmenu('Leaderboard'); }} className={`py-1.5 text-left cursor-pointer ${selectedMenuItem === 'Leaderboard' ? 'px-2 bg-white rounded shadow-sm -mx-2' : ''}`}>
-                    <span className={`text-sm ${selectedMenuItem === 'Leaderboard' ? 'text-[#25252a] font-medium' : 'text-[#5d666f]'}`}>Leaderboard</span>
-                  </button>
-                  <button onClick={() => { setSelectedMenuItem('Dashboard Builder'); setCurrentSection('Insights'); setCurrentSubmenu('Dashboard Builder'); }} className={`py-1.5 text-left cursor-pointer ${selectedMenuItem === 'Dashboard Builder' ? 'px-2 bg-white rounded shadow-sm -mx-2' : ''}`}>
-                    <span className={`text-sm ${selectedMenuItem === 'Dashboard Builder' ? 'text-[#25252a] font-medium' : 'text-[#5d666f]'}`}>Dashboard Builder</span>
-                  </button>
-                  <button onClick={() => { setSelectedMenuItem('AI Analyst'); setCurrentSection('Insights'); setCurrentSubmenu('AI Analyst'); }} className={`py-1.5 text-left cursor-pointer ${selectedMenuItem === 'AI Analyst' ? 'px-2 bg-white rounded shadow-sm -mx-2' : ''}`}>
-                    <span className={`text-sm ${selectedMenuItem === 'AI Analyst' ? 'text-[#25252a] font-medium' : 'text-[#5d666f]'}`}>AI Analyst</span>
-                  </button>
-                  <button onClick={() => { setSelectedMenuItem('Trends and Anomalies'); setCurrentSection('Insights'); setCurrentSubmenu('Trends and Anomalies'); }} className={`py-1.5 text-left cursor-pointer ${selectedMenuItem === 'Trends and Anomalies' ? 'px-2 bg-white rounded shadow-sm -mx-2' : ''}`}>
-                    <span className={`text-sm ${selectedMenuItem === 'Trends and Anomalies' ? 'text-[#25252a] font-medium' : 'text-[#5d666f]'}`}>Trends and Anomalies</span>
-                  </button>
-                  <button onClick={() => { setSelectedMenuItem('Outcome Insights'); setCurrentSection('Insights'); setCurrentSubmenu('Outcome Insights'); }} className={`py-1.5 text-left cursor-pointer ${selectedMenuItem === 'Outcome Insights' ? 'px-2 bg-white rounded shadow-sm -mx-2' : ''}`}>
-                    <span className={`text-sm ${selectedMenuItem === 'Outcome Insights' ? 'text-[#25252a] font-medium' : 'text-[#5d666f]'}`}>Outcome Insights</span>
-                  </button>
-                  <button onClick={() => { setSelectedMenuItem('Topic Discovery'); setCurrentSection('Insights'); setCurrentSubmenu('Topic Discovery'); }} className={`py-1.5 text-left cursor-pointer ${selectedMenuItem === 'Topic Discovery' ? 'px-2 bg-white rounded shadow-sm -mx-2' : ''}`}>
-                    <span className={`text-sm ${selectedMenuItem === 'Topic Discovery' ? 'text-[#25252a] font-medium' : 'text-[#5d666f]'}`}>Topic Discovery</span>
-                  </button>
+                  {getMenuItems('Insights').map((item) => (
+                    <button
+                      key={item}
+                      onClick={() => { setSelectedMenuItem(item); setCurrentSection('Insights'); setCurrentSubmenu(item); }}
+                      className={`py-1.5 text-left cursor-pointer ${selectedMenuItem === item ? 'px-2 bg-white rounded-[8px] shadow-sm -mx-2' : ''}`}
+                    >
+                      <span className={`text-sm ${selectedMenuItem === item ? 'text-[#25252a] font-medium' : 'text-[#5d666f]'}`}>{item}</span>
+                    </button>
+                  ))}
                 </div>
               )}
 
@@ -244,18 +283,15 @@ export default function App() {
               </div>
               {expandedSection === 'Conversations' && (
                 <div className="flex flex-col pl-10 pr-4 pb-2 overflow-hidden transition-all duration-200 ease-in-out animate-slideDown">
-                  <button onClick={() => { setSelectedMenuItem('Live Conversations'); setCurrentSection('Conversations'); setCurrentSubmenu('Live Conversations'); }} className={`py-1.5 text-left cursor-pointer ${selectedMenuItem === 'Live Conversations' ? 'px-2 bg-white rounded shadow-sm -mx-2' : ''}`}>
-                    <span className={`text-sm ${selectedMenuItem === 'Live Conversations' ? 'text-[#25252a] font-medium' : 'text-[#5d666f]'}`}>Live Conversations</span>
-                  </button>
-                  <button onClick={() => { setSelectedMenuItem('Closed Conversations'); setCurrentSection('Conversations'); setCurrentSubmenu('Closed Conversations'); }} className={`py-1.5 text-left cursor-pointer ${selectedMenuItem === 'Closed Conversations' ? 'px-2 bg-white rounded shadow-sm -mx-2' : ''}`}>
-                    <span className={`text-sm ${selectedMenuItem === 'Closed Conversations' ? 'text-[#25252a] font-medium' : 'text-[#5d666f]'}`}>Closed Conversations</span>
-                  </button>
-                  <button onClick={() => { setSelectedMenuItem('Agent Ops Center'); setCurrentSection('Conversations'); setCurrentSubmenu('Agent Ops Center'); }} className={`py-1.5 text-left cursor-pointer ${selectedMenuItem === 'Agent Ops Center' ? 'px-2 bg-white rounded shadow-sm -mx-2' : ''}`}>
-                    <span className={`text-sm ${selectedMenuItem === 'Agent Ops Center' ? 'text-[#25252a] font-medium' : 'text-[#5d666f]'}`}>Agent Ops Center</span>
-                  </button>
-                  <button onClick={() => { setSelectedMenuItem('Recordings'); setCurrentSection('Conversations'); setCurrentSubmenu('Recordings'); }} className={`py-1.5 text-left cursor-pointer ${selectedMenuItem === 'Recordings' ? 'px-2 bg-white rounded shadow-sm -mx-2' : ''}`}>
-                    <span className={`text-sm ${selectedMenuItem === 'Recordings' ? 'text-[#25252a] font-medium' : 'text-[#5d666f]'}`}>Recordings</span>
-                  </button>
+                  {getMenuItems('Conversations').map((item) => (
+                    <button
+                      key={item}
+                      onClick={() => { setSelectedMenuItem(item); setCurrentSection('Conversations'); setCurrentSubmenu(item); }}
+                      className={`py-1.5 text-left cursor-pointer ${selectedMenuItem === item ? 'px-2 bg-white rounded-[8px] shadow-sm -mx-2' : ''}`}
+                    >
+                      <span className={`text-sm ${selectedMenuItem === item ? 'text-[#25252a] font-medium' : 'text-[#5d666f]'}`}>{item}</span>
+                    </button>
+                  ))}
                 </div>
               )}
 
@@ -276,20 +312,30 @@ export default function App() {
               </div>
               {expandedSection === 'Opera' && (
                 <div className="flex flex-col pl-10 pr-4 pb-2 overflow-hidden transition-all duration-200 ease-in-out animate-slideDown">
-                  <div className={`flex items-center justify-between py-1.5 -mr-2 ${selectedMenuItem === 'Opera Rules' ? 'px-2 bg-white rounded shadow-sm -mx-2' : ''}`}>
-                    <button onClick={() => { setSelectedMenuItem('Opera Rules'); setCurrentSection('Opera'); setCurrentSubmenu('Opera Rules'); }} className="flex-1 text-left cursor-pointer">
-                      <span className={`text-sm ${selectedMenuItem === 'Opera Rules' ? 'text-[#25252a] font-medium' : 'text-[#5d666f]'}`}>Opera Rules</span>
-                    </button>
-                    <button className="w-6 h-6 flex items-center justify-center cursor-pointer rounded hover:bg-white transition-colors">
-                      <IconPlus size={12} stroke={1.5} className="text-[#5d666f]" />
-                    </button>
-                  </div>
-                  <button onClick={() => { setSelectedMenuItem('Opera Simulator'); setCurrentSection('Opera'); setCurrentSubmenu('Opera Simulator'); }} className={`py-1.5 text-left cursor-pointer ${selectedMenuItem === 'Opera Simulator' ? 'px-2 bg-white rounded shadow-sm -mx-2' : ''}`}>
-                    <span className={`text-sm ${selectedMenuItem === 'Opera Simulator' ? 'text-[#25252a] font-medium' : 'text-[#5d666f]'}`}>Opera Simulator</span>
-                  </button>
-                  <button onClick={() => { setSelectedMenuItem('Blocks'); setCurrentSection('Opera'); setCurrentSubmenu('Blocks'); }} className={`py-1.5 text-left cursor-pointer ${selectedMenuItem === 'Blocks' ? 'px-2 bg-white rounded shadow-sm -mx-2' : ''}`}>
-                    <span className={`text-sm ${selectedMenuItem === 'Blocks' ? 'text-[#25252a] font-medium' : 'text-[#5d666f]'}`}>Blocks</span>
-                  </button>
+                  {getMenuItems('Opera').map((item, index) => {
+                    // Show plus button for the first item in secret mode and if it's "Opera Rules"
+                    if (index === 0 && !showDummyMenu && item === 'Opera Rules') {
+                      return (
+                        <div key={item} className={`flex items-center justify-between py-1.5 -mr-2 ${selectedMenuItem === item ? 'px-2 bg-white rounded-[8px] shadow-sm -mx-2' : ''}`}>
+                          <button onClick={() => { setSelectedMenuItem(item); setCurrentSection('Opera'); setCurrentSubmenu(item); }} className="flex-1 text-left cursor-pointer">
+                            <span className={`text-sm ${selectedMenuItem === item ? 'text-[#25252a] font-medium' : 'text-[#5d666f]'}`}>{item}</span>
+                          </button>
+                          <button className="w-6 h-6 flex items-center justify-center cursor-pointer rounded hover:bg-white transition-colors">
+                            <IconPlus size={12} stroke={1.5} className="text-[#5d666f]" />
+                          </button>
+                        </div>
+                      );
+                    }
+                    return (
+                      <button
+                        key={item}
+                        onClick={() => { setSelectedMenuItem(item); setCurrentSection('Opera'); setCurrentSubmenu(item); }}
+                        className={`py-1.5 text-left cursor-pointer ${selectedMenuItem === item ? 'px-2 bg-white rounded-[8px] shadow-sm -mx-2' : ''}`}
+                      >
+                        <span className={`text-sm ${selectedMenuItem === item ? 'text-[#25252a] font-medium' : 'text-[#5d666f]'}`}>{item}</span>
+                      </button>
+                    );
+                  })}
                 </div>
               )}
 
@@ -310,18 +356,15 @@ export default function App() {
               </div>
               {expandedSection === 'Coaching' && (
                 <div className="flex flex-col pl-10 pr-4 pb-2 overflow-hidden transition-all duration-200 ease-in-out animate-slideDown">
-                  <button onClick={() => { setSelectedMenuItem('Coaching Hub'); setCurrentSection('Coaching'); setCurrentSubmenu('Coaching Hub'); }} className={`py-1.5 text-left cursor-pointer ${selectedMenuItem === 'Coaching Hub' ? 'px-2 bg-white rounded shadow-sm -mx-2' : ''}`}>
-                    <span className={`text-sm ${selectedMenuItem === 'Coaching Hub' ? 'text-[#25252a] font-medium' : 'text-[#5d666f]'}`}>Coaching Hub</span>
-                  </button>
-                  <button onClick={() => { setSelectedMenuItem('Coaching Report'); setCurrentSection('Coaching'); setCurrentSubmenu('Coaching Report'); }} className={`py-1.5 text-left cursor-pointer ${selectedMenuItem === 'Coaching Report' ? 'px-2 bg-white rounded shadow-sm -mx-2' : ''}`}>
-                    <span className={`text-sm ${selectedMenuItem === 'Coaching Report' ? 'text-[#25252a] font-medium' : 'text-[#5d666f]'}`}>Coaching Report</span>
-                  </button>
-                  <button onClick={() => { setSelectedMenuItem('Training Simulator'); setCurrentSection('Coaching'); setCurrentSubmenu('Training Simulator'); }} className={`py-1.5 text-left cursor-pointer ${selectedMenuItem === 'Training Simulator' ? 'px-2 bg-white rounded shadow-sm -mx-2' : ''}`}>
-                    <span className={`text-sm ${selectedMenuItem === 'Training Simulator' ? 'text-[#25252a] font-medium' : 'text-[#5d666f]'}`}>Training Simulator</span>
-                  </button>
-                  <button onClick={() => { setSelectedMenuItem('Library'); setCurrentSection('Coaching'); setCurrentSubmenu('Library'); }} className={`py-1.5 text-left cursor-pointer ${selectedMenuItem === 'Library' ? 'px-2 bg-white rounded shadow-sm -mx-2' : ''}`}>
-                    <span className={`text-sm ${selectedMenuItem === 'Library' ? 'text-[#25252a] font-medium' : 'text-[#5d666f]'}`}>Library</span>
-                  </button>
+                  {getMenuItems('Coaching').map((item) => (
+                    <button
+                      key={item}
+                      onClick={() => { setSelectedMenuItem(item); setCurrentSection('Coaching'); setCurrentSubmenu(item); }}
+                      className={`py-1.5 text-left cursor-pointer ${selectedMenuItem === item ? 'px-2 bg-white rounded-[8px] shadow-sm -mx-2' : ''}`}
+                    >
+                      <span className={`text-sm ${selectedMenuItem === item ? 'text-[#25252a] font-medium' : 'text-[#5d666f]'}`}>{item}</span>
+                    </button>
+                  ))}
                 </div>
               )}
 
@@ -342,12 +385,15 @@ export default function App() {
               </div>
               {expandedSection === 'QM' && (
                 <div className="flex flex-col pl-10 pr-4 pb-2 overflow-hidden transition-all duration-200 ease-in-out animate-slideDown">
-                  <button onClick={() => { setSelectedMenuItem('QM Report'); setCurrentSection('QM'); setCurrentSubmenu('QM Report'); }} className={`py-1.5 text-left cursor-pointer ${selectedMenuItem === 'QM Report' ? 'px-2 bg-white rounded shadow-sm -mx-2' : ''}`}>
-                    <span className={`text-sm ${selectedMenuItem === 'QM Report' ? 'text-[#25252a] font-medium' : 'text-[#5d666f]'}`}>QM Report</span>
-                  </button>
-                  <button onClick={() => { setSelectedMenuItem('QM Task Home'); setCurrentSection('QM'); setCurrentSubmenu('QM Task Home'); }} className={`py-1.5 text-left cursor-pointer ${selectedMenuItem === 'QM Task Home' ? 'px-2 bg-white rounded shadow-sm -mx-2' : ''}`}>
-                    <span className={`text-sm ${selectedMenuItem === 'QM Task Home' ? 'text-[#25252a] font-medium' : 'text-[#5d666f]'}`}>QM Task Home</span>
-                  </button>
+                  {getMenuItems('QM').map((item) => (
+                    <button
+                      key={item}
+                      onClick={() => { setSelectedMenuItem(item); setCurrentSection('QM'); setCurrentSubmenu(item); }}
+                      className={`py-1.5 text-left cursor-pointer ${selectedMenuItem === item ? 'px-2 bg-white rounded-[8px] shadow-sm -mx-2' : ''}`}
+                    >
+                      <span className={`text-sm ${selectedMenuItem === item ? 'text-[#25252a] font-medium' : 'text-[#5d666f]'}`}>{item}</span>
+                    </button>
+                  ))}
                 </div>
               )}
 
@@ -368,18 +414,15 @@ export default function App() {
               </div>
               {expandedSection === 'AI Agents' && (
                 <div className="flex flex-col pl-10 pr-4 pb-2 overflow-hidden transition-all duration-200 ease-in-out animate-slideDown">
-                  <button onClick={() => { setSelectedMenuItem('AI Agents'); setCurrentSection('AI Agents'); setCurrentSubmenu('AI Agents'); }} className={`py-1.5 text-left cursor-pointer ${selectedMenuItem === 'AI Agents' ? 'px-2 bg-white rounded shadow-sm -mx-2' : ''}`}>
-                    <span className={`text-sm ${selectedMenuItem === 'AI Agents' ? 'text-[#25252a] font-medium' : 'text-[#5d666f]'}`}>AI Agents</span>
-                  </button>
-                  <button onClick={() => { setSelectedMenuItem('Custom Code'); setCurrentSection('AI Agents'); setCurrentSubmenu('Custom Code'); }} className={`py-1.5 text-left cursor-pointer ${selectedMenuItem === 'Custom Code' ? 'px-2 bg-white rounded shadow-sm -mx-2' : ''}`}>
-                    <span className={`text-sm ${selectedMenuItem === 'Custom Code' ? 'text-[#25252a] font-medium' : 'text-[#5d666f]'}`}>Custom Code</span>
-                  </button>
-                  <button onClick={() => { setSelectedMenuItem('Testing & Evaluation'); setCurrentSection('AI Agents'); setCurrentSubmenu('Testing & Evaluation'); }} className={`py-1.5 text-left cursor-pointer ${selectedMenuItem === 'Testing & Evaluation' ? 'px-2 bg-white rounded shadow-sm -mx-2' : ''}`}>
-                    <span className={`text-sm ${selectedMenuItem === 'Testing & Evaluation' ? 'text-[#25252a] font-medium' : 'text-[#5d666f]'}`}>Testing & Evaluation</span>
-                  </button>
-                  <button onClick={() => { setSelectedMenuItem('AI Feedback'); setCurrentSection('AI Agents'); setCurrentSubmenu('AI Feedback'); }} className={`py-1.5 text-left cursor-pointer ${selectedMenuItem === 'AI Feedback' ? 'px-2 bg-white rounded shadow-sm -mx-2' : ''}`}>
-                    <span className={`text-sm ${selectedMenuItem === 'AI Feedback' ? 'text-[#25252a] font-medium' : 'text-[#5d666f]'}`}>AI Feedback</span>
-                  </button>
+                  {getMenuItems('AI Agents').map((item) => (
+                    <button
+                      key={item}
+                      onClick={() => { setSelectedMenuItem(item); setCurrentSection('AI Agents'); setCurrentSubmenu(item); }}
+                      className={`py-1.5 text-left cursor-pointer ${selectedMenuItem === item ? 'px-2 bg-white rounded-[8px] shadow-sm -mx-2' : ''}`}
+                    >
+                      <span className={`text-sm ${selectedMenuItem === item ? 'text-[#25252a] font-medium' : 'text-[#5d666f]'}`}>{item}</span>
+                    </button>
+                  ))}
                 </div>
               )}
 
@@ -400,21 +443,15 @@ export default function App() {
               </div>
               {expandedSection === 'Admin' && (
                 <div className="flex flex-col pl-10 pr-4 pb-2 overflow-hidden transition-all duration-200 ease-in-out animate-slideDown">
-                  <button onClick={() => { setSelectedMenuItem('Performance Config'); setCurrentSection('Admin'); setCurrentSubmenu('Performance Config'); }} className={`py-1.5 text-left cursor-pointer ${selectedMenuItem === 'Performance Config' ? 'px-2 bg-white rounded shadow-sm -mx-2' : ''}`}>
-                    <span className={`text-sm ${selectedMenuItem === 'Performance Config' ? 'text-[#25252a] font-medium' : 'text-[#5d666f]'}`}>Performance Config</span>
-                  </button>
-                  <button onClick={() => { setSelectedMenuItem('Knowledge Base'); setCurrentSection('Admin'); setCurrentSubmenu('Knowledge Base'); }} className={`py-1.5 text-left cursor-pointer ${selectedMenuItem === 'Knowledge Base' ? 'px-2 bg-white rounded shadow-sm -mx-2' : ''}`}>
-                    <span className={`text-sm ${selectedMenuItem === 'Knowledge Base' ? 'text-[#25252a] font-medium' : 'text-[#5d666f]'}`}>Knowledge Base</span>
-                  </button>
-                  <button onClick={() => { setSelectedMenuItem('Guided Workflows'); setCurrentSection('Admin'); setCurrentSubmenu('Guided Workflows'); }} className={`py-1.5 text-left cursor-pointer ${selectedMenuItem === 'Guided Workflows' ? 'px-2 bg-white rounded shadow-sm -mx-2' : ''}`}>
-                    <span className={`text-sm ${selectedMenuItem === 'Guided Workflows' ? 'text-[#25252a] font-medium' : 'text-[#5d666f]'}`}>Guided Workflows</span>
-                  </button>
-                  <button onClick={() => { setSelectedMenuItem('Org Management'); setCurrentSection('Admin'); setCurrentSubmenu('Org Management'); }} className={`py-1.5 text-left cursor-pointer ${selectedMenuItem === 'Org Management' ? 'px-2 bg-white rounded shadow-sm -mx-2' : ''}`}>
-                    <span className={`text-sm ${selectedMenuItem === 'Org Management' ? 'text-[#25252a] font-medium' : 'text-[#5d666f]'}`}>Org Management</span>
-                  </button>
-                  <button onClick={() => { setSelectedMenuItem('Notification Mgmt'); setCurrentSection('Admin'); setCurrentSubmenu('Notification Mgmt'); }} className={`py-1.5 text-left cursor-pointer ${selectedMenuItem === 'Notification Mgmt' ? 'px-2 bg-white rounded shadow-sm -mx-2' : ''}`}>
-                    <span className={`text-sm ${selectedMenuItem === 'Notification Mgmt' ? 'text-[#25252a] font-medium' : 'text-[#5d666f]'}`}>Notification Mgmt</span>
-                  </button>
+                  {getMenuItems('Admin').map((item) => (
+                    <button
+                      key={item}
+                      onClick={() => { setSelectedMenuItem(item); setCurrentSection('Admin'); setCurrentSubmenu(item); }}
+                      className={`py-1.5 text-left cursor-pointer ${selectedMenuItem === item ? 'px-2 bg-white rounded-[8px] shadow-sm -mx-2' : ''}`}
+                    >
+                      <span className={`text-sm ${selectedMenuItem === item ? 'text-[#25252a] font-medium' : 'text-[#5d666f]'}`}>{item}</span>
+                    </button>
+                  ))}
                 </div>
               )}
 
@@ -435,33 +472,25 @@ export default function App() {
               </div>
               {expandedSection === 'System' && (
                 <div className="flex flex-col pl-10 pr-4 pb-2 overflow-hidden transition-all duration-200 ease-in-out animate-slideDown">
-                  <button onClick={() => { setSelectedMenuItem('Data Management'); setCurrentSection('System'); setCurrentSubmenu('Data Management'); }} className={`py-1.5 text-left cursor-pointer ${selectedMenuItem === 'Data Management' ? 'px-2 bg-white rounded shadow-sm -mx-2' : ''}`}>
-                    <span className={`text-sm ${selectedMenuItem === 'Data Management' ? 'text-[#25252a] font-medium' : 'text-[#5d666f]'}`}>Data Management</span>
-                  </button>
-                  <button onClick={() => { setSelectedMenuItem('Integrations'); setCurrentSection('System'); setCurrentSubmenu('Integrations'); }} className={`py-1.5 text-left cursor-pointer ${selectedMenuItem === 'Integrations' ? 'px-2 bg-white rounded shadow-sm -mx-2' : ''}`}>
-                    <span className={`text-sm ${selectedMenuItem === 'Integrations' ? 'text-[#25252a] font-medium' : 'text-[#5d666f]'}`}>Integrations</span>
-                  </button>
-                  <button onClick={() => { setSelectedMenuItem('Webhooks'); setCurrentSection('System'); setCurrentSubmenu('Webhooks'); }} className={`py-1.5 text-left cursor-pointer ${selectedMenuItem === 'Webhooks' ? 'px-2 bg-white rounded shadow-sm -mx-2' : ''}`}>
-                    <span className={`text-sm ${selectedMenuItem === 'Webhooks' ? 'text-[#25252a] font-medium' : 'text-[#5d666f]'}`}>Webhooks</span>
-                  </button>
-                  <button onClick={() => { setSelectedMenuItem('Jobs'); setCurrentSection('System'); setCurrentSubmenu('Jobs'); }} className={`py-1.5 text-left cursor-pointer ${selectedMenuItem === 'Jobs' ? 'px-2 bg-white rounded shadow-sm -mx-2' : ''}`}>
-                    <span className={`text-sm ${selectedMenuItem === 'Jobs' ? 'text-[#25252a] font-medium' : 'text-[#5d666f]'}`}>Jobs</span>
-                  </button>
-                  <button onClick={() => { setSelectedMenuItem('Deployment Config'); setCurrentSection('System'); setCurrentSubmenu('Deployment Config'); }} className={`py-1.5 text-left cursor-pointer ${selectedMenuItem === 'Deployment Config' ? 'px-2 bg-white rounded shadow-sm -mx-2' : ''}`}>
-                    <span className={`text-sm ${selectedMenuItem === 'Deployment Config' ? 'text-[#25252a] font-medium' : 'text-[#5d666f]'}`}>Deployment Config</span>
-                  </button>
-                  <button onClick={() => { setSelectedMenuItem('Role Permissions'); setCurrentSection('System'); setCurrentSubmenu('Role Permissions'); }} className={`py-1.5 text-left cursor-pointer ${selectedMenuItem === 'Role Permissions' ? 'px-2 bg-white rounded shadow-sm -mx-2' : ''}`}>
-                    <span className={`text-sm ${selectedMenuItem === 'Role Permissions' ? 'text-[#25252a] font-medium' : 'text-[#5d666f]'}`}>Role Permissions</span>
-                  </button>
-                  <button onClick={() => { setSelectedMenuItem('Common Words'); setCurrentSection('System'); setCurrentSubmenu('Common Words'); }} className={`py-1.5 text-left cursor-pointer ${selectedMenuItem === 'Common Words' ? 'px-2 bg-white rounded shadow-sm -mx-2' : ''}`}>
-                    <span className={`text-sm ${selectedMenuItem === 'Common Words' ? 'text-[#25252a] font-medium' : 'text-[#5d666f]'}`}>Common Words</span>
-                  </button>
-                  <button onClick={() => { setSelectedMenuItem('API Credentials'); setCurrentSection('System'); setCurrentSubmenu('API Credentials'); }} className={`py-1.5 text-left cursor-pointer ${selectedMenuItem === 'API Credentials' ? 'px-2 bg-white rounded shadow-sm -mx-2' : ''}`}>
-                    <span className={`text-sm ${selectedMenuItem === 'API Credentials' ? 'text-[#25252a] font-medium' : 'text-[#5d666f]'}`}>API Credentials</span>
-                  </button>
-                  <button onClick={() => { setSelectedMenuItem('Config Wizard'); setCurrentSection('System'); setCurrentSubmenu('Config Wizard'); }} className={`py-1.5 text-left cursor-pointer ${selectedMenuItem === 'Config Wizard' ? 'px-2 bg-white rounded shadow-sm -mx-2' : ''}`}>
-                    <span className={`text-sm ${selectedMenuItem === 'Config Wizard' ? 'text-[#25252a] font-medium' : 'text-[#5d666f]'}`}>Config Wizard</span>
-                  </button>
+                  {getMenuItems('System').map((item) => (
+                    <button
+                      key={item}
+                      onClick={() => { setSelectedMenuItem(item); setCurrentSection('System'); setCurrentSubmenu(item); }}
+                      className={`py-1.5 text-left cursor-pointer ${selectedMenuItem === item ? 'px-2 bg-white rounded-[8px] shadow-sm -mx-2' : ''}`}
+                    >
+                      <span className={`text-sm ${selectedMenuItem === item ? 'text-[#25252a] font-medium' : 'text-[#5d666f]'}`}>{item}</span>
+                    </button>
+                  ))}
+                  <div className="pt-2 mt-2 border-t border-[#dee5eb]">
+                    <button
+                      onClick={() => setShowDummyMenu(!showDummyMenu)}
+                      className="w-full py-1.5 px-2 text-left cursor-pointer rounded hover:bg-[#dee5eb] transition-colors"
+                    >
+                      <span className="text-xs font-medium text-[#5d666f]">
+                        {showDummyMenu ? 'Show full menu' : 'Show dummy menu'}
+                      </span>
+                    </button>
+                  </div>
                 </div>
               )}
           </div>
@@ -503,11 +532,11 @@ export default function App() {
             isLeftNavCollapsed ? 'justify-center group-hover:justify-start' : ''
           }`}
         >
-          <IconLayoutSidebarLeftCollapse
-            size={16}
-            stroke={1.5}
-            className={`text-[#25252a] ${isLeftNavCollapsed ? 'rotate-180' : ''}`}
-          />
+          {isLeftNavCollapsed ? (
+            <IconChevronRight size={16} stroke={1.5} className="text-[#25252a]" />
+          ) : (
+            <IconChevronLeft size={16} stroke={1.5} className="text-[#25252a]" />
+          )}
           {/* Show "Collapse" when expanded */}
           {!isLeftNavCollapsed && (
             <span className="text-xs font-semibold text-[#25252a]">
@@ -526,9 +555,9 @@ export default function App() {
       {/* Main Content Area */}
       <div className={`flex-1 flex flex-col transition-all duration-300 ease-in-out ${isLeftNavCollapsed ? 'ml-[60px]' : 'ml-[208px]'}`}>
         {/* Top Header */}
-        <div className="bg-[#ebf0f5] flex items-center justify-between pr-6 pt-5 pb-3">
+        <div className="bg-[#ebf0f5] flex items-center pr-6 pt-5 pb-3 gap-4">
           {/* Breadcrumb */}
-          <div className="flex items-center gap-2 flex-1 pl-6">
+          <div className="flex items-center gap-2 flex-shrink-0 whitespace-nowrap">
             <Menu shadow="md" position="bottom-start" offset={4}>
               <Menu.Target>
                 <div className="flex items-center gap-1.5 cursor-pointer pl-2 pr-1 py-1 rounded hover:bg-[#dee5eb] transition-colors">
@@ -559,13 +588,11 @@ export default function App() {
               </Menu.Dropdown>
             </Menu>
             <span className="text-sm text-[#5d666f]">/</span>
-            <span className="text-sm font-medium text-[#5d666f]">{currentSection}</span>
-            <span className="text-sm text-[#5d666f]">/</span>
             <span className="text-sm font-medium text-[#25252a]">{currentSubmenu}</span>
           </div>
 
-          {/* Search Bar - Center aligned */}
-          <div className="flex-1 flex justify-center">
+          {/* Search Bar - Shifted right for optical centering */}
+          <div className="flex-1 flex justify-center min-w-0">
             <ExpandableSearchBar
               onSearch={(query) => {
                 console.log('Searching for:', query);
@@ -578,30 +605,72 @@ export default function App() {
           </div>
 
           {/* Right Icons */}
-          <div className="flex items-center gap-2 flex-1 justify-end">
-            <button
-              onClick={() => setIsRightPanelCollapsed(!isRightPanelCollapsed)}
-              className={`w-7 h-7 flex items-center justify-center rounded transition-colors cursor-pointer ${
-                isRightPanelCollapsed ? 'hover:bg-[#dee5eb]' : 'bg-white shadow-sm hover:bg-[#f8f9fa]'
-              }`}
-            >
-              <IconHeadset size={16} stroke={1.5} className="text-[#25252a]" />
-            </button>
-            <button className="w-7 h-7 flex items-center justify-center rounded cursor-pointer">
-              <IconBell size={16} stroke={1.5} className="text-[#25252a]" />
-            </button>
-            <div className="flex items-center gap-1 h-7 px-2 rounded cursor-pointer">
-              <span className="text-2xl">🇺🇸</span>
-              <IconChevronDown size={12} stroke={1.5} className="text-[#25252a]" />
-            </div>
-            <div className="flex items-center gap-1 h-7 px-2 rounded cursor-pointer">
-              <img
-                src={`${import.meta.env.BASE_URL}profile.png`}
-                alt="Profile"
-                className="w-7 h-7 rounded-full border border-[#dee5eb] object-cover"
-              />
-              <IconChevronDown size={12} stroke={1.5} className="text-[#25252a]" />
-            </div>
+          <div className="flex items-center gap-2 flex-shrink-0">
+            <Tooltip label="Support AI Agent" position="bottom" withArrow>
+              <button
+                onClick={() => setIsRightPanelCollapsed(!isRightPanelCollapsed)}
+                className={`w-7 h-7 flex items-center justify-center rounded transition-colors cursor-pointer ${
+                  isRightPanelCollapsed ? 'hover:bg-[#dee5eb]' : 'bg-white shadow-sm hover:bg-[#f8f9fa]'
+                }`}
+              >
+                <IconHeadset size={16} stroke={1.5} className="text-[#25252a]" />
+              </button>
+            </Tooltip>
+            <Tooltip label="2 critical out of 7 unread notifications" position="bottom" withArrow>
+              <button
+                onClick={() => {
+                  setSelectedMenuItem('Notifications');
+                  setCurrentSection('');
+                  setCurrentSubmenu('Notifications');
+                }}
+                className={`w-7 h-7 flex items-center justify-center rounded cursor-pointer transition-colors relative ${
+                  currentSubmenu === 'Notifications' ? 'bg-white shadow-sm hover:bg-[#f8f9fa]' : 'hover:bg-[#dee5eb]'
+                }`}
+              >
+                <IconBell size={16} stroke={1.5} className="text-[#25252a]" />
+                <div className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full"></div>
+              </button>
+            </Tooltip>
+            <Tooltip label="Language and feedbacks" position="bottom" withArrow>
+              <div className="flex items-center gap-1 h-7 px-2 rounded cursor-pointer hover:bg-[#dee5eb] transition-colors">
+                <span className="text-2xl">🇺🇸</span>
+                <IconChevronDown size={12} stroke={1.5} className="text-[#25252a]" />
+              </div>
+            </Tooltip>
+            <Menu shadow="md" position="bottom-end" offset={4}>
+              <Menu.Target>
+                <div className="flex items-center gap-1 h-7 px-2 rounded cursor-pointer hover:bg-[#dee5eb] transition-colors">
+                  <img
+                    src={`${import.meta.env.BASE_URL}profile.png`}
+                    alt="Profile"
+                    className="w-7 h-7 rounded-full border border-[#dee5eb] object-cover"
+                  />
+                  <IconChevronDown size={12} stroke={1.5} className="text-[#25252a]" />
+                </div>
+              </Menu.Target>
+
+              <Menu.Dropdown className="!min-w-[200px] !border-[#dee5eb] !rounded-lg">
+                <Menu.Item
+                  leftSection={<IconUser size={16} stroke={1.5} className="text-[#5d666f]" />}
+                  className="!text-sm !cursor-pointer !text-[#5d666f] hover:!bg-[#f8f9fa]"
+                >
+                  Profile
+                </Menu.Item>
+                <Menu.Item
+                  leftSection={<IconSettings size={16} stroke={1.5} className="text-[#5d666f]" />}
+                  className="!text-sm !cursor-pointer !text-[#5d666f] hover:!bg-[#f8f9fa]"
+                >
+                  Notification settings
+                </Menu.Item>
+                <Menu.Divider />
+                <Menu.Item
+                  leftSection={<IconLogout size={16} stroke={1.5} className="text-[#5d666f]" />}
+                  className="!text-sm !cursor-pointer !text-[#5d666f] hover:!bg-[#f8f9fa]"
+                >
+                  Logout
+                </Menu.Item>
+              </Menu.Dropdown>
+            </Menu>
           </div>
         </div>
 
@@ -620,13 +689,13 @@ export default function App() {
         `}
       >
         {/* Header */}
-        <div className="flex items-center justify-between p-4 border-b border-[#dee5eb] bg-[#ebf0f5]">
+        <div className="flex items-center justify-between py-5 px-2 border-b border-[#dee5eb] bg-[#ebf0f5]">
           <div className="flex items-center gap-2.5">
             <button
               onClick={() => setIsRightPanelCollapsed(true)}
               className="w-7 h-7 flex items-center justify-center bg-white border border-[#dee5eb] rounded hover:bg-[#f8f9fa] transition-colors cursor-pointer"
             >
-              <IconLayoutSidebarLeftCollapse size={16} stroke={1.5} className="text-[#25252a]" />
+              <IconChevronRight size={16} stroke={1.5} className="text-[#25252a]" />
             </button>
             <span className="text-sm font-semibold text-[#25252a]">Support AI Agent</span>
           </div>
@@ -690,14 +759,14 @@ export default function App() {
         </div>
 
         {/* Chat Input - sticky to bottom */}
-        <div className="p-4 bg-[#ebf0f5]">
-          <div className="bg-white border border-[#dee5eb] rounded-2xl shadow-[0px_7px_7px_0px_rgba(0,0,0,0.04),0px_10px_15px_0px_rgba(0,0,0,0.05),0px_1px_3px_0px_rgba(0,0,0,0.05)] px-3 py-2">
+        <div className="p-2 bg-[#ebf0f5]">
+          <div className="bg-white border border-[#dee5eb] rounded-2xl shadow-[0_0_25px_0px_rgba(0,0,0,0.05)] px-3 py-2">
             <textarea
               value={inputValue}
               onChange={(e) => setInputValue(e.target.value)}
               onKeyDown={handleKeyPress}
               placeholder="Ask any support question"
-              className="w-full min-h-[60px] bg-transparent outline-none resize-none text-xs font-normal leading-[1.55] text-[#25252a] placeholder:text-[#a1b0b7]"
+              className="w-full min-h-[60px] bg-transparent outline-none resize-none text-sm font-normal leading-[1.55] text-[#25252a] placeholder:text-[#a1b0b7]"
               disabled={isLoading}
             />
             <div className="flex items-center justify-end gap-2 pt-1.5">
