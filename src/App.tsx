@@ -37,7 +37,6 @@ export default function App() {
   const [isLeftNavCollapsed, setIsLeftNavCollapsed] = React.useState(false);
   const [selectedMenuItem, setSelectedMenuItem] = React.useState('Closed Conversations');
   const [expandedSection, setExpandedSection] = React.useState<string>('Conversations');
-  const [currentSection, setCurrentSection] = React.useState('Conversations');
   const [currentSubmenu, setCurrentSubmenu] = React.useState('Closed Conversations');
   const [selectedWorkspace, setSelectedWorkspace] = React.useState('Voice demo');
   const [messages, setMessages] = React.useState<Message[]>([]);
@@ -257,7 +256,7 @@ export default function App() {
                   {getMenuItems('Insights').map((item) => (
                     <button
                       key={item}
-                      onClick={() => { setSelectedMenuItem(item); setCurrentSection('Insights'); setCurrentSubmenu(item); }}
+                      onClick={() => { setSelectedMenuItem(item); setCurrentSubmenu(item); }}
                       className={`py-1.5 text-left cursor-pointer ${selectedMenuItem === item ? 'px-2 bg-white rounded-[8px] shadow-sm -mx-2' : ''}`}
                     >
                       <span className={`text-sm ${selectedMenuItem === item ? 'text-[#25252a] font-medium' : 'text-[#5d666f]'}`}>{item}</span>
@@ -286,7 +285,7 @@ export default function App() {
                   {getMenuItems('Conversations').map((item) => (
                     <button
                       key={item}
-                      onClick={() => { setSelectedMenuItem(item); setCurrentSection('Conversations'); setCurrentSubmenu(item); }}
+                      onClick={() => { setSelectedMenuItem(item); setCurrentSubmenu(item); }}
                       className={`py-1.5 text-left cursor-pointer ${selectedMenuItem === item ? 'px-2 bg-white rounded-[8px] shadow-sm -mx-2' : ''}`}
                     >
                       <span className={`text-sm ${selectedMenuItem === item ? 'text-[#25252a] font-medium' : 'text-[#5d666f]'}`}>{item}</span>
@@ -317,7 +316,7 @@ export default function App() {
                     if (index === 0 && !showDummyMenu && item === 'Opera Rules') {
                       return (
                         <div key={item} className={`flex items-center justify-between py-1.5 -mr-2 ${selectedMenuItem === item ? 'px-2 bg-white rounded-[8px] shadow-sm -mx-2' : ''}`}>
-                          <button onClick={() => { setSelectedMenuItem(item); setCurrentSection('Opera'); setCurrentSubmenu(item); }} className="flex-1 text-left cursor-pointer">
+                          <button onClick={() => { setSelectedMenuItem(item); setCurrentSubmenu(item); }} className="flex-1 text-left cursor-pointer">
                             <span className={`text-sm ${selectedMenuItem === item ? 'text-[#25252a] font-medium' : 'text-[#5d666f]'}`}>{item}</span>
                           </button>
                           <button className="w-6 h-6 flex items-center justify-center cursor-pointer rounded hover:bg-white transition-colors">
@@ -329,7 +328,7 @@ export default function App() {
                     return (
                       <button
                         key={item}
-                        onClick={() => { setSelectedMenuItem(item); setCurrentSection('Opera'); setCurrentSubmenu(item); }}
+                        onClick={() => { setSelectedMenuItem(item); setCurrentSubmenu(item); }}
                         className={`py-1.5 text-left cursor-pointer ${selectedMenuItem === item ? 'px-2 bg-white rounded-[8px] shadow-sm -mx-2' : ''}`}
                       >
                         <span className={`text-sm ${selectedMenuItem === item ? 'text-[#25252a] font-medium' : 'text-[#5d666f]'}`}>{item}</span>
@@ -359,7 +358,7 @@ export default function App() {
                   {getMenuItems('Coaching').map((item) => (
                     <button
                       key={item}
-                      onClick={() => { setSelectedMenuItem(item); setCurrentSection('Coaching'); setCurrentSubmenu(item); }}
+                      onClick={() => { setSelectedMenuItem(item); setCurrentSubmenu(item); }}
                       className={`py-1.5 text-left cursor-pointer ${selectedMenuItem === item ? 'px-2 bg-white rounded-[8px] shadow-sm -mx-2' : ''}`}
                     >
                       <span className={`text-sm ${selectedMenuItem === item ? 'text-[#25252a] font-medium' : 'text-[#5d666f]'}`}>{item}</span>
@@ -388,7 +387,7 @@ export default function App() {
                   {getMenuItems('QM').map((item) => (
                     <button
                       key={item}
-                      onClick={() => { setSelectedMenuItem(item); setCurrentSection('QM'); setCurrentSubmenu(item); }}
+                      onClick={() => { setSelectedMenuItem(item); setCurrentSubmenu(item); }}
                       className={`py-1.5 text-left cursor-pointer ${selectedMenuItem === item ? 'px-2 bg-white rounded-[8px] shadow-sm -mx-2' : ''}`}
                     >
                       <span className={`text-sm ${selectedMenuItem === item ? 'text-[#25252a] font-medium' : 'text-[#5d666f]'}`}>{item}</span>
@@ -417,7 +416,7 @@ export default function App() {
                   {getMenuItems('AI Agents').map((item) => (
                     <button
                       key={item}
-                      onClick={() => { setSelectedMenuItem(item); setCurrentSection('AI Agents'); setCurrentSubmenu(item); }}
+                      onClick={() => { setSelectedMenuItem(item); setCurrentSubmenu(item); }}
                       className={`py-1.5 text-left cursor-pointer ${selectedMenuItem === item ? 'px-2 bg-white rounded-[8px] shadow-sm -mx-2' : ''}`}
                     >
                       <span className={`text-sm ${selectedMenuItem === item ? 'text-[#25252a] font-medium' : 'text-[#5d666f]'}`}>{item}</span>
@@ -446,7 +445,7 @@ export default function App() {
                   {getMenuItems('Admin').map((item) => (
                     <button
                       key={item}
-                      onClick={() => { setSelectedMenuItem(item); setCurrentSection('Admin'); setCurrentSubmenu(item); }}
+                      onClick={() => { setSelectedMenuItem(item); setCurrentSubmenu(item); }}
                       className={`py-1.5 text-left cursor-pointer ${selectedMenuItem === item ? 'px-2 bg-white rounded-[8px] shadow-sm -mx-2' : ''}`}
                     >
                       <span className={`text-sm ${selectedMenuItem === item ? 'text-[#25252a] font-medium' : 'text-[#5d666f]'}`}>{item}</span>
@@ -475,7 +474,7 @@ export default function App() {
                   {getMenuItems('System').map((item) => (
                     <button
                       key={item}
-                      onClick={() => { setSelectedMenuItem(item); setCurrentSection('System'); setCurrentSubmenu(item); }}
+                      onClick={() => { setSelectedMenuItem(item); setCurrentSubmenu(item); }}
                       className={`py-1.5 text-left cursor-pointer ${selectedMenuItem === item ? 'px-2 bg-white rounded-[8px] shadow-sm -mx-2' : ''}`}
                     >
                       <span className={`text-sm ${selectedMenuItem === item ? 'text-[#25252a] font-medium' : 'text-[#5d666f]'}`}>{item}</span>
@@ -620,7 +619,6 @@ export default function App() {
               <button
                 onClick={() => {
                   setSelectedMenuItem('Notifications');
-                  setCurrentSection('');
                   setCurrentSubmenu('Notifications');
                 }}
                 className={`w-7 h-7 flex items-center justify-center rounded cursor-pointer transition-colors relative ${
