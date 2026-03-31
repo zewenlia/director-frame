@@ -129,13 +129,14 @@ export const LanguageDropdown: React.FC<LanguageDropdownProps> = ({
       <div className="px-3 py-2 border-b border-[#dee5eb] flex-shrink-0">
         <button
           disabled={isEnglishUS}
-          className={`w-full flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-md text-[10px] font-semibold transition-colors ${
+          className={`w-full flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-md font-semibold transition-colors ${
             isEnglishUS
               ? 'bg-[#f8f9fa] text-[#a1b0b7] cursor-not-allowed'
               : 'bg-[#205ae3] text-white hover:bg-[#1a4bc7] cursor-pointer'
           }`}
+          style={{ fontSize: '14px' }}
         >
-          <IconFlag size={11} stroke={1.5} />
+          <IconFlag size={14} stroke={1.5} />
           <span>Leave feedbacks on language</span>
         </button>
       </div>
