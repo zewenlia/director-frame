@@ -44,7 +44,6 @@ export const FlagIcon: React.FC<{ countryCode: string; className?: string }> = (
 
   React.useEffect(() => {
     if (flagRef.current) {
-      const flagEmoji = getCountryFlag(countryCode);
       twemoji.parse(flagRef.current, {
         folder: 'svg',
         ext: '.svg',
