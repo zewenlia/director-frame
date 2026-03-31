@@ -143,8 +143,9 @@ export const LanguageDropdown: React.FC<LanguageDropdownProps> = ({
 
       {/* Scrollable Menu Items */}
       <div className="overflow-y-auto flex-1">
-        {languages.map((language) => {
+        {languages.map((language, index) => {
           const isSelected = language.code === selectedLanguage.code;
+          const isLast = index === languages.length - 1;
           return (
             <button
               key={language.code}
@@ -154,7 +155,7 @@ export const LanguageDropdown: React.FC<LanguageDropdownProps> = ({
               }}
               className={`w-full flex items-center justify-between px-3 py-2 transition-colors ${
                 isSelected ? 'bg-[#f1f5fe]' : 'bg-white hover:bg-[#f1f5fe]'
-              }`}
+              } ${isLast ? 'rounded-b-lg' : ''}`}
             >
               <div className="flex items-center gap-2 flex-1 min-w-0">
                 <span className="text-lg flex-shrink-0">{getCountryFlag(language.countryCode)}</span>
