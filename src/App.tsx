@@ -1,7 +1,7 @@
 import React from 'react'
 import { Menu, Tooltip } from '@mantine/core'
 import { ExpandableSearchBar } from './ExpandableSearchBar'
-import { LanguageDropdown, useLanguageDropdown } from './LanguageDropdown'
+import { LanguageDropdown, useLanguageDropdown, FlagIcon } from './LanguageDropdown'
 import {
   IconTrendingUp,
   IconChevronDown,
@@ -643,7 +643,7 @@ export default function App() {
                 onClick={languageDropdown.toggleDropdown}
                 className="flex items-center gap-1 h-7 px-2 rounded cursor-pointer hover:bg-[#dee5eb] transition-colors"
               >
-                <span className="text-lg">{String.fromCodePoint(...languageDropdown.selectedLanguage.countryCode.toUpperCase().split('').map(char => 127397 + char.charCodeAt(0)))}</span>
+                <FlagIcon countryCode={languageDropdown.selectedLanguage.countryCode} className="w-4 h-4" />
                 <IconChevronDown size={12} stroke={1.5} className="text-[#25252a]" />
               </div>
             </Tooltip>

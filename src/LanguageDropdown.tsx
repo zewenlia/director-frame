@@ -1,5 +1,6 @@
 import React from 'react';
 import { IconFlag } from '@tabler/icons-react';
+import twemoji from 'twemoji';
 
 export type Language = {
   name: string;
@@ -35,6 +36,27 @@ const getCountryFlag = (countryCode: string): string => {
     .split('')
     .map(char => 127397 + char.charCodeAt(0));
   return String.fromCodePoint(...codePoints);
+};
+
+// Component to render flag using twemoji
+export const FlagIcon: React.FC<{ countryCode: string; className?: string }> = ({ countryCode, className = 'w-5 h-5' }) => {
+  const flagRef = React.useRef<HTMLSpanElement>(null);
+
+  React.useEffect(() => {
+    if (flagRef.current) {
+      const flagEmoji = getCountryFlag(countryCode);
+      twemoji.parse(flagRef.current, {
+        folder: 'svg',
+        ext: '.svg',
+      });
+    }
+  }, [countryCode]);
+
+  return (
+    <span ref={flagRef} className={`inline-block flex-shrink-0 ${className}`}>
+      {getCountryFlag(countryCode)}
+    </span>
+  );
 };
 
 type LanguageDropdownProps = {
@@ -158,7 +180,7 @@ export const LanguageDropdown: React.FC<LanguageDropdownProps> = ({
               } ${isLast ? 'rounded-b-lg' : ''}`}
             >
               <div className="flex items-center gap-2 flex-1 min-w-0">
-                <span className="text-lg flex-shrink-0">{getCountryFlag(language.countryCode)}</span>
+                <FlagIcon countryCode={language.countryCode} />
                 <span className="text-sm text-[#25252a] truncate">{language.name}</span>
               </div>
               <div className="bg-[#ebf0f5] px-2 py-0.5 rounded-md flex-shrink-0 ml-2">
