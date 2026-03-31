@@ -142,7 +142,7 @@ export const LanguageDropdown: React.FC<LanguageDropdownProps> = ({
       </div>
 
       {/* Scrollable Menu Items */}
-      <div className="overflow-y-auto flex-1">
+      <div className="overflow-y-auto flex-1 rounded-b-lg">
         {languages.map((language, index) => {
           const isSelected = language.code === selectedLanguage.code;
           const isLast = index === languages.length - 1;
